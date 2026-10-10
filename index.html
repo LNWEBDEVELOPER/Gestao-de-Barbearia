@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#101110">
     <meta name="color-scheme" content="dark">
-    <title>Martins Barbearia</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23141514'/%3E%3Ctext x='50' y='70' font-size='64' font-family='Georgia' text-anchor='middle' fill='%23d6b077'%3EM%3C/text%3E%3C/svg%3E">
+    <title>Gestão de Barbearia</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23141514'/%3E%3Ctext x='50' y='70' font-size='64' font-family='Georgia' text-anchor='middle' fill='%23d6b077'%3EG%3C/text%3E%3C/svg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -15,8 +15,8 @@
 <body>
     <div id="telaLogin" class="tela-login">
         <div class="login-layout">
-            <section class="login-apresentacao" aria-label="Martins Barbearia">
-                <div class="marca"><span class="marca-simbolo"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="8" cy="24" r="4"/><circle cx="24" cy="24" r="4"/><path d="m10.8 21.2 13-16M21.2 21.2 8.2 5.2M16 15l5 6"/></svg></span><span class="marca-nome">MARTINS<small>BARBEARIA</small></span></div>
+            <section class="login-apresentacao" aria-label="Gestão de Barbearia">
+                <div class="marca"><span class="marca-simbolo"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="8" cy="24" r="4"/><circle cx="24" cy="24" r="4"/><path d="m10.8 21.2 13-16M21.2 21.2 8.2 5.2M16 15l5 6"/></svg></span><span class="marca-nome">GESTÃO<small>DE BARBEARIA</small></span></div>
                 <div class="login-manifesto">
                     <span class="eyebrow">TRADIÇÃO EM CADA DETALHE</span>
                     <h1>O cuidado é nosso.<br><em>O estilo é seu.</em></h1>
@@ -25,7 +25,7 @@
                 <span class="login-assinatura">PRECISÃO &nbsp; / &nbsp; ESTILO &nbsp; / &nbsp; IDENTIDADE</span>
             </section>
             <section class="login-caixa" aria-labelledby="tituloLogin">
-                <span class="eyebrow">ÁREA DA EQUIPE</span>
+                <span class="eyebrow">SEU ESPAÇO DE GESTÃO</span>
                 <h2 id="tituloLogin">Bom ter você<br> de volta.</h2>
                 <p class="login-subtitulo">Seu próximo grande atendimento começa aqui.</p>
                 <p id="bootMessage" role="status">Preparando acesso…</p>
@@ -35,13 +35,12 @@
                     <label for="loginSenha">Senha</label>
                     <input type="password" id="loginSenha" required placeholder="Digite sua senha" autocomplete="current-password">
                     <button class="botao-principal login-entrar" id="btnEntrar" type="submit">Entrar no sistema <span aria-hidden="true">↗</span></button>
-                    <div class="action-row"><button type="button" class="link-texto" id="firstAccess">Primeiro acesso</button><button type="button" class="link-texto" id="forgotPassword">Esqueci minha senha</button></div>
+                    <div class="action-row"><button type="button" class="link-texto" id="firstAccess">Criar minha conta</button><button type="button" class="link-texto" id="forgotPassword">Esqueci minha senha</button></div>
                 </form>
                 <p id="loginErro" class="login-erro" role="alert" aria-live="polite"></p>
-                <p class="login-ajuda">Primeiro acesso? Peça seu cadastro ao responsável pela barbearia.</p>
-                <p id="setupNotice" class="setup-notice" hidden>O acesso online aguarda configuração. A demonstração abaixo usa somente dados fictícios.</p>
-                <button type="button" class="botao-secundario" id="openDemo">Conhecer o painel · demonstração</button>
-                <span class="login-rodape">MARTINS <span>BARBEARIA</span></span>
+                <p class="login-ajuda">Crie sua conta com e-mail e senha. Seus clientes, serviços e valores ficam vinculados somente a ela.</p>
+                <p id="setupNotice" class="setup-notice" hidden>O acesso online aguarda configuração.</p>
+                <span class="login-rodape">GESTÃO <span>DE BARBEARIA</span></span>
             </section>
         </div>
     </div>
@@ -49,7 +48,7 @@
     <div id="appPrincipal" style="display:none;">
         <header class="app-header">
             <div class="header-inner">
-                <button class="marca marca-botao" id="marcaHome" type="button" aria-label="Martins Barbearia, ir para início"><span class="marca-simbolo"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="8" cy="24" r="4"/><circle cx="24" cy="24" r="4"/><path d="m10.8 21.2 13-16M21.2 21.2 8.2 5.2M16 15l5 6"/></svg></span><span class="marca-nome">MARTINS<small>BARBEARIA</small></span></button>
+                <button class="marca marca-botao" id="marcaHome" type="button" aria-label="Gestão de Barbearia, ir para início"><span class="marca-simbolo"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="8" cy="24" r="4"/><circle cx="24" cy="24" r="4"/><path d="m10.8 21.2 13-16M21.2 21.2 8.2 5.2M16 15l5 6"/></svg></span><span class="marca-nome">GESTÃO<small>DE BARBEARIA</small></span></button>
                 <nav class="menu-inferior" aria-label="Navegação principal">
                     <button id="menuHome" data-page="home" type="button"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7M5 9v11h5v-7h4v7h5V9"/></svg></span><small>Início</small></button>
                     <button id="menuServicos" data-page="services" type="button"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg></span><small>Serviços</small></button>
@@ -59,9 +58,8 @@
                 <div class="header-perfil"><span class="perfil-status" aria-hidden="true"></span><span id="headerPerfil">Minha conta</span></div>
             </div>
         </header>
-        <div id="demoBanner" class="demo-banner" hidden></div>
         <main id="conteudoPrincipal" class="conteudo"><div class="sync-row"><small id="syncTime"></small><button type="button" class="link-texto" data-action="refresh">↻ Atualizar</button></div><div id="app"></div></main>
-        <footer class="app-footer"><span>MARTINS <span>BARBEARIA</span></span><small>Cuidado em cada detalhe.</small></footer>
+        <footer class="app-footer"><span>GESTÃO <span>DE BARBEARIA</span></span><small>Cuidado em cada detalhe.</small></footer>
     </div>
     <div id="statusMessage" class="status-message" role="status" aria-live="polite" aria-atomic="true"></div>
     <noscript>Ative o JavaScript para usar o sistema da barbearia.</noscript>

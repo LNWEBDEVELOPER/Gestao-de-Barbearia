@@ -1,56 +1,45 @@
-# Martins Barbearia
+# Gestão de Barbearia
 
-Sistema web de gestão com visual escuro e dourado, frontend estático e Supabase Auth/PostgreSQL. Uma barbearia por projeto Supabase.
+Sistema web com contas individuais por e-mail e senha, Supabase Auth/PostgreSQL e interface escura e dourada.
 
-## Estado desta entrega
+Cada conta começa vazia: sem clientes, atendimentos, preços ou metas de exemplo. O mesmo login acessa os mesmos dados em diferentes aparelhos. Contas diferentes não compartilham registros. A senha é gerenciada pelo Supabase Auth, nunca armazenada nas tabelas de negócio.
 
-O Supabase foi provisionado e as duas migrações foram aplicadas. A versão atual está preparada para testes no GitHub Pages, com publicação automática de `dist/` pelo GitHub Actions. A validação do login e dos fluxos autenticados ainda está pendente. A demonstração é identificada, somente leitura, com dados fictícios. Os dados antigos do navegador não são apagados.
+## Preparar e testar
 
-## Executar a prévia
-
-Requisito: Node.js 22 ou superior.
+Node.js 22.13 ou superior.
 
 ```sh
 npm ci
+npm test
 npm run build
 npm start
 ```
 
-Abra http://127.0.0.1:8766. O build gera `dist/`. Não publique a raiz do repositório nem `node_modules`.
+A prévia fica em http://127.0.0.1:8766. Publique somente `dist/`. O build recria essa pasta e não distribui a demonstração nem a exportação do armazenamento antigo compartilhado.
+
+`npm test` executa a migração num PostgreSQL local em WASM (PGlite), valida isolamento com duas identidades e verifica as telas com JSDOM. O teste não acessa nem altera o Supabase online. A confirmação de e-mail e a recuperação de senha precisam ser verificadas no ambiente publicado.
 
 ## Recursos
 
-- Acesso por e-mail e senha, confirmação de e-mail e recuperação de senha via Supabase.
-- E-mails previamente liberados pelo dono; criar uma conta pública não concede acesso aos dados.
-- Dono: equipe, ativação de acesso, preços, comissões, clientes, relatórios, metas, cancelamento com motivo, exportação e auditoria.
-- Barbeiro: cadastro de clientes, registro de seus serviços, seus relatórios e metas.
-- As metas diária, semanal e mensal são definidas juntas, uma vez por mês pelo barbeiro. A verificação ocorre no banco, usando o mês de São Paulo, com bloqueio transacional. O dono pode ajustar metas, com auditoria.
-- Histórico completo de cliente disponível à equipe, incluindo serviços de outros profissionais, total gasto e últimos 12 meses. A visão financeira geral e as comissões de outros profissionais são reservadas ao dono.
-- Registros preservados ao arquivar clientes, desativar profissionais ou cancelar serviços.
-- Preço e comissão calculados no banco. Alterações de preço/comissão não modificam atendimentos anteriores.
-- Exportação CSV, impressão e exportação JSON dos registros. A exportação JSON não é uma restauração automática de todo o banco: mantenha também backups PostgreSQL.
-- As telas consultam dados atuais ao navegar, após salvar e ao clicar em Atualizar. Não há atualização automática em tempo real nem gravação offline.
+- Cadastro por e-mail e senha; confirmação de e-mail e recuperação de senha.
+- Clientes, histórico, preços, atendimentos, relatórios, metas e exportação exclusivos de cada conta.
+- Nome e comissão configuráveis em Meu perfil; nome do negócio opcional em Minha conta.
+- Preços e comissão calculados no servidor. Cancelamentos preservam o registro e seu motivo.
+- Trocar de conta ou sair limpa o painel e o nome do negócio. Respostas pendentes de outra sessão são descartadas.
+- Consultas atualizadas ao navegar, salvar ou clicar em Atualizar. Não há gravação offline ou atualização automática em tempo real.
 
-## Ativação online
+## Ativação e dados antigos
 
-Siga [ATIVACAO.md](ATIVACAO.md). Precisaremos de um projeto Supabase do proprietário, configuração de e-mail e hospedagem da pasta `dist/`. Somente URL e chave publicável entram no frontend. Nunca inclua senha de banco, token de administração ou chave `service_role` no GitHub.
+Siga [ATIVACAO.md](ATIVACAO.md). Em projeto já configurado, aplique apenas `supabase/migrations/003_contas_individuais.sql` antes de publicar o frontend v3.
 
-## Organização
+A migração preserva todas as tabelas antigas do schema `barber`. Elas deixam de ser acessíveis pelas funções antigas do aplicativo. Nenhum dado antigo é apagado ou copiado automaticamente para as novas contas; inclusive contas já existentes começam com um espaço individual vazio. A recuperação de históricos antigos exige atribuição explícita e revisão pelo administrador do banco.
 
-- `app.js`: entrada; `ui.js`: telas e navegação.
-- `cloud.js`: cliente Supabase e chamadas autenticadas.
-- `domain.js`: moeda, datas, períodos e CSV.
-- `demo.js`: dados fictícios de apresentação, sem escrita.
-- `supabase/migrations/`: estrutura e funções de banco.
-- `exportar-antigo.html`: exportação no endereço onde a versão antiga era utilizada.
-- `scripts/`: build e servidor local que expõe somente `dist/`.
+O schema privado `personal` não deve ser exposto pela API. Suas tabelas têm RLS habilitada e sem acesso direto a `anon`/`authenticated`. A função `barber_account_api` verifica identidade, e-mail confirmado e propriedade em cada leitura/gravação. IDs enviados pelo navegador não autorizam acesso a outra conta. Não existe administrador global dentro do aplicativo.
 
-## Modelo de acesso
+## Arquivos
 
-As tabelas ficam no schema privado `barber`, com RLS habilitada e sem permissões diretas para `anon`/`authenticated`. O frontend usa apenas as funções `barber_api` e `barber_import`. São funções `SECURITY DEFINER` com `search_path` vazio, que verificam `auth.uid()`, e-mail confirmado, perfil ativo, papel e escopo antes de cada operação. Não adicione o schema `barber` aos schemas expostos da API.
-
-As senhas são gerenciadas pelo Supabase Auth. A sessão é mantida pelo SDK; o servidor não confia em papel, nome ou senha antigos do localStorage. Não existe senha padrão de administrador.
-
-## Antes do uso real
-
-A ativação deve incluir uma verificação com contas separadas de dono e barbeiro: login/recuperação, restrições de acesso, gravação concorrente de metas, fechamento do mês, relatórios, cancelamento e importação em cópia de dados. O build não valida essas integrações. Não use dados reais na demonstração.
+- `ui.js`: telas; `cloud.js`: sessão e API; `domain.js`: cálculos e formatação.
+- `supabase/migrations/003_contas_individuais.sql`: estrutura e acesso individual.
+- `tests/`: isolamento do banco e comportamento das telas.
+- `scripts/`: build e prévia de `dist/`.
+- `demo.js` e `exportar-antigo.*`: arquivos históricos mantidos apenas no código-fonte, fora da publicação.

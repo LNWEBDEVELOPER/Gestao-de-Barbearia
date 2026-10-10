@@ -1,0 +1,46 @@
+import {JSDOM} from 'jsdom';
+import {readFile} from 'node:fs/promises';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+const dom=new JSDOM(html,{url:'https://example.test/',runScripts:'outside-only'});
+console.log('UI: DOM ready');
+const w=dom.window;w.scrollTo=()=>{};
+let session=null,authListener;
+const profile={id:'account-a',name:'Pessoa A',email:'a@example.test',role:'owner',active:true,commission_rate:0};
+const account={me:profile,profiles:[profile],clients:[],catalog:[],services:[],goals:[],today:'2026-10-10',month:'2026-10',shop:{name:'Negócio Privado A',phone:'',address:''}};
+w.rpc=async action=>action==='state'?structuredClone(account):[];
+w.cloud={auth:{onAuthStateChange(fn){authListener=fn},async getSession(){return {data:{session}}},async signOut(){authListener('SIGNED_OUT',null);return {error:null}}}};
+w.configured=true;
+const domain=(await readFile(new URL('../domain.js',import.meta.url),'utf8')).replaceAll('export ','');
+const ui=(await readFile(new URL('../ui.js',import.meta.url),'utf8')).replace(/^import .*;\r?\n/gm,'');
+vm.runInContext(domain+'\n'+ui,dom.getInternalVMContext());
+console.log('UI: code loaded');
+await new Promise(r=>setTimeout(r,10));
+assert.equal(w.document.getElementById('openDemo'),null);
+assert.doesNotMatch(w.document.body.textContent,/Martins|dados fictícios/i);
+assert.equal(w.document.title,'Gestão de Barbearia');
+await vm.runInContext('go()',dom.getInternalVMContext());
+console.log('UI: home');
+assert.equal(w.document.title,'Negócio Privado A');
+assert.match(w.document.getElementById('app').textContent,/primeiro serviço/);
+for(const route of ['clients','newService','goals','team','catalog','account','services','audit']){
+ console.log('UI:',route);
+ assert.equal(await vm.runInContext(`go('${route}')`,dom.getInternalVMContext()),true,route);
+}
+await vm.runInContext("go('newService')",dom.getInternalVMContext());
+assert.match(w.document.getElementById('app').textContent,/Cadastre seus serviços e preços/);
+// Troca de conta em outra aba limpa dados e marca antes da próxima consulta.
+authListener('SIGNED_IN',{user:{id:'account-b'}});
+assert.equal(w.document.getElementById('app').innerHTML,'');
+assert.equal(w.document.title,'Gestão de Barbearia');
+account.me={...profile,id:'account-b',name:'Pessoa B'};account.profiles=[account.me];account.shop.name='';
+await new Promise(r=>setTimeout(r,20));
+assert.equal(w.document.getElementById('headerPerfil').textContent,'Pessoa B');
+assert.doesNotMatch(w.document.body.textContent,/Negócio Privado A|Pessoa A/);
+authListener('SIGNED_OUT',null);
+assert.equal(w.document.getElementById('app').innerHTML,'');
+assert.equal(w.document.title,'Gestão de Barbearia');
+assert.equal(w.document.getElementById('appPrincipal').style.display,'none');
+console.log('UI passed: login without demo, empty account, all routes, cross-tab identity change, logout clears content and branding.');
+dom.window.close();

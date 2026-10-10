@@ -1,81 +1,32 @@
-# Ativar a Martins Barbearia
+# Ativar contas individuais
 
-## 1. Criar o banco
+## Banco já existente
 
-Crie um projeto em https://supabase.com/dashboard, pertencente à sua conta. Guarde a senha do banco em um gerenciador de senhas; ela não é usada no site.
+1. No Supabase do projeto configurado em `config.js`, abra SQL Editor.
+2. Execute uma vez `supabase/migrations/003_contas_individuais.sql` integralmente. A operação é transacional.
+3. Confirme que existe `public.barber_account_api(text,jsonb)` e que `authenticated` não pode mais executar `barber_api` nem `barber_import`.
+4. Publique o frontend v3 imediatamente após a migração. A versão antiga deixará de consultar dados compartilhados.
 
-No SQL Editor do projeto novo, execute nesta ordem:
+Não reaplique 001/002 em banco existente. Em projeto novo, execute 001, 002 e 003 nessa ordem. Nenhum perfil de dono precisa ser inserido manualmente: cada usuário com e-mail confirmado recebe seu próprio espaço vazio no primeiro acesso.
 
-1. `supabase/migrations/001_barbearia.sql`
-2. `supabase/migrations/002_importacao.sql`
+## Autenticação
 
-A primeira migração é para instalação nova e não deve ser reaplicada sobre tabelas existentes.
+Mantenha e-mail/senha, cadastro e confirmação de e-mail habilitados no Supabase Auth. Configure senha mínima de 10 caracteres, Site URL e Redirect URLs com a URL publicada. Para confirmação e recuperação, configure um provedor SMTP que possa enviar aos usuários do sistema; o envio de e-mails não é testado pelos testes locais.
 
-## 2. Liberar o primeiro dono
+## Publicação
 
-No SQL Editor, substitua os exemplos pelo nome e pelo e-mail real do proprietário:
+Execute `npm ci`, `npm test` e `npm run build`. Publique apenas `dist/`. O workflow existente publica essa pasta ao enviar a branch `main` ao GitHub. Não publique o frontend antes da migração; ele exige a nova API e não retorna à API compartilhada.
 
-```sql
-insert into barber.profiles (email, name, role)
-values (lower('seu-email@exemplo.com'), 'Seu nome', 'owner');
-```
+## Verificação após ativar
 
-Depois, o dono cria a própria senha em **Primeiro acesso** no site e confirma o e-mail. O banco associa a identidade verificada ao perfil. Somente alguém com administração do banco pode criar outro dono; não há escolha de papel na tela de login.
+- Uma conta confirmada deve abrir sem clientes, preços, atendimentos ou metas.
+- Cadastre seus preços, clientes e primeiro atendimento. Faça login em outro aparelho com a mesma conta e atualize a tela.
+- Outra conta deve continuar vazia, sem poder consultar, alterar ou exportar os registros da primeira.
+- Ao sair, o nome do negócio volta a Gestão de Barbearia e o painel é limpo.
+- Confirme o recebimento de e-mail de cadastro/recuperação com contas de teste próprias.
 
-## 3. Configurar autenticação e e-mails
+## Histórico preservado
 
-Em Authentication:
+A migração não elimina o schema `barber`, usuários ou dados de autenticação. O histórico compartilhado antigo permanece restrito à administração do banco. As novas contas não recebem esse histórico automaticamente. Os antigos arquivos de exportação local não são distribuídos em `dist/`.
 
-- Habilite e-mail/senha, cadastro de usuários e confirmação de e-mail.
-- Configure a política de senha com pelo menos 10 caracteres.
-- Configure SMTP próprio para confirmação e recuperação. O SMTP padrão do Supabase é restrito a endereços da equipe do projeto e não atende à operação normal com barbeiros. [Documentação oficial](https://supabase.com/docs/guides/auth/auth-smtp).
-- Em URL Configuration, defina Site URL como o endereço final do sistema e inclua o mesmo endereço em Redirect URLs. Durante desenvolvimento, adicione `http://127.0.0.1:8766/`.
-
-O dono libera cada barbeiro em **Profissionais** usando seu e-mail. Cada um define a própria senha em **Primeiro acesso**. Não é enviado convite automático ao cadastrar um profissional.
-
-## 4. Conectar o site
-
-Em `config.js`, preencha:
-
-```js
-window.BARBER_CONFIG = {
-  supabaseUrl: "https://SEU-PROJETO.supabase.co",
-  supabasePublishableKey: "sb_publishable_SUA_CHAVE_PUBLICAVEL"
-};
-```
-
-Use a URL e a chave **publicável** do projeto. Não use `sb_secret_...`, senha de banco, token pessoal ou `service_role`. Se utilizar a chave legada, deve ser exclusivamente a `anon`. [Chaves do Supabase](https://supabase.com/docs/guides/api/api-keys).
-
-Execute `npm run build` após alterar a configuração.
-
-## 5. Hospedar
-
-Publique apenas `dist/` em uma hospedagem de sites estáticos que aceite o uso comercial e a interface autenticada, como Cloudflare Pages. O repositório pode continuar no GitHub.
-
-Configuração de build:
-
-- Comando: `npm ci && npm run build`
-- Diretório de saída: `dist`
-- Node.js: 22 ou superior
-
-Ative HTTPS e use a URL final na configuração de autenticação. Como as rotas são internas à aplicação, não há regra especial de redirecionamento para subcaminhos.
-
-O GitHub Pages consegue servir os arquivos, mas não é a recomendação para operar este sistema: a documentação restringe hospedagem de operações comerciais e desaconselha o envio de senhas. [Limites do Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits).
-
-## 6. Trazer os registros antigos
-
-1. Mantenha uma cópia da versão antiga e dos dados antes da mudança.
-2. Abra `exportar-antigo.html` no **mesmo endereço e navegador** da versão antiga. O armazenamento local é vinculado ao endereço: uma prévia localhost não enxerga os dados de um site publicado.
-3. Baixe o JSON. Ele exclui senhas e sessões. Nenhum registro local é apagado.
-4. No sistema online, cadastre os profissionais com os nomes usados no histórico.
-5. Entre como dono e vá a Minha conta → Exportação e dados antigos → Importar.
-
-A importação acrescenta clientes e atendimentos e ignora registros idênticos já importados. O lote é transacional: um erro não deixa importação parcial. Clientes ou profissionais homônimos precisam ser identificados antes da migração, porque a versão antiga usava o nome como vínculo. Até 10.000 clientes e 10.000 atendimentos por arquivo, limitado a 10 MB na interface.
-
-As metas e dados de conta antigos ficam preservados no JSON original, mas não são importados automaticamente; configure-os novamente. Preços e comissões históricos dos atendimentos são preservados.
-
-## 7. Operação
-
-Faça a validação com duas contas e dados de demonstração antes do primeiro atendimento real. Configure backups do PostgreSQL e retenção conforme a necessidade do negócio. A exportação JSON pelo sistema é complementar e não recria usuários do Supabase Auth.
-
-Para retirar o acesso de um funcionário, use **Desativar acesso** em Profissionais. Os registros financeiros ficam preservados e o banco recusa novas operações daquele perfil.
+Se for necessário reverter o lançamento, preserve também o schema `personal` e seus registros novos. Restaurar o frontend anterior exige revisar e reativar as permissões antigas, o que volta a compartilhar dados e não atende ao modelo individual solicitado. Não faça essa reversão silenciosamente.

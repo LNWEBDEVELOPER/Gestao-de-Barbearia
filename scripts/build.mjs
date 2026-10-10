@@ -1,10 +1,12 @@
 import { build } from 'esbuild';
-import { mkdir, copyFile, cp, writeFile, readFile } from 'node:fs/promises';
+import { mkdir, copyFile, cp, writeFile, readFile, rm } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 await mkdir('vendor', { recursive: true });
 await build({ stdin: { contents: 'export { createClient } from "@supabase/supabase-js";', resolveDir: process.cwd() }, bundle: true, format: 'esm', platform: 'browser', target: 'es2022', outfile: 'vendor/supabase.js', minify: true, legalComments: 'eof' });
+// dist é exclusivamente gerado pelo build; limpa versões antigas e demonstrações.
+await rm(new URL('../dist/', import.meta.url), { recursive: true, force: true });
 await mkdir('dist', { recursive: true });
-for (const file of ['index.html', 'app.js', 'ui.js', 'cloud.js', 'domain.js', 'demo.js', 'style.css', 'config.js', 'exportar-antigo.html', 'exportar-antigo.js', '_headers']) await copyFile(file, `dist/${file}`);
+for (const file of ['index.html', 'app.js', 'ui.js', 'cloud.js', 'domain.js', 'style.css', 'config.js', '_headers']) await copyFile(file, `dist/${file}`);
 for (const dir of ['vendor', 'assets']) await cp(dir, `dist/${dir}`, { recursive: true });
 await writeFile('dist/.nojekyll', '');
 await build({ entryPoints:['app.js'], bundle:true, format:'esm', platform:'browser', target:'es2022', outfile:'dist/app.js', minify:true, legalComments:'eof' });
