@@ -1,45 +1,82 @@
 # Gestão de Barbearia
 
-Sistema web com contas individuais por e-mail e senha, Supabase Auth/PostgreSQL e interface escura e dourada.
+**Clientes, atendimentos e resultados em um espaço individual de gestão.**
 
-Cada conta começa vazia: sem clientes, atendimentos, preços ou metas de exemplo. O mesmo login acessa os mesmos dados em diferentes aparelhos. Contas diferentes não compartilham registros. A senha é gerenciada pelo Supabase Auth, nunca armazenada nas tabelas de negócio.
+Aplicação web para cadastrar clientes, definir preços, registrar serviços e acompanhar metas. Cada conta acessa somente seus próprios dados, inclusive ao entrar em outro aparelho.
 
-## Preparar e testar
+[**Abrir aplicação**](https://luannascimentopsp-droid.github.io/AppBarberweb/) · [Guia de ativação](ATIVACAO.md) · [Detalhes de operação](docs/OPERACAO.md)
 
-Node.js 22.13 ou superior.
+> O acesso exige e-mail e senha. Cada conta começa vazia, sem registros fictícios.
+
+![Tela de acesso da Gestão de Barbearia](docs/images/acesso.png)
+
+## O problema
+
+Um controle de atendimentos precisa relacionar clientes, serviços, valores e histórico sem misturar os registros de pessoas diferentes. O sistema concentra essas informações em uma interface responsiva e vincula os dados à identidade autenticada.
+
+## Funcionalidades
+
+- Cadastro e histórico de clientes, com busca e arquivamento.
+- Tabela de serviços e preços; cálculo de valor e comissão no servidor.
+- Relatórios por período, metas e exportação dos registros da conta.
+- Login, confirmação de e-mail e recuperação de senha pelo Supabase Auth.
+- Cancelamento de atendimento com motivo e preservação do histórico.
+- Nome do negócio e perfil personalizáveis.
+
+## Tecnologias e arquitetura
+
+| Camada | Implementação |
+| --- | --- |
+| Interface | HTML, CSS e JavaScript, sem framework de UI |
+| Autenticação | Supabase Auth |
+| Dados e regras | PostgreSQL e funções PL/pgSQL |
+| Build | Node.js e esbuild |
+| Testes | PGlite e JSDOM |
+| Publicação | GitHub Actions e GitHub Pages |
+
+A interface envia operações para a função `barber_account_api`. O banco valida a identidade, a confirmação de e-mail e a propriedade dos registros. As tabelas ficam em schema privado, com RLS habilitada e sem acesso direto pelos clientes.
+
+O servidor calcula preços e comissões; alterar o preço de um serviço não modifica os atendimentos já registrados. Ao sair ou trocar de conta, o painel é limpo e respostas pendentes de outra sessão são descartadas.
+
+## Executar localmente
+
+Requisito: **Node.js 22.13 ou superior**.
 
 ```sh
+git clone https://github.com/luannascimentopsp-droid/AppBarberweb.git
+cd AppBarberweb
 npm ci
 npm test
 npm run build
 npm start
 ```
 
-A prévia fica em http://127.0.0.1:8766. Publique somente `dist/`. O build recria essa pasta e não distribui a demonstração nem a exportação do armazenamento antigo compartilhado.
+Abra [http://127.0.0.1:8766](http://127.0.0.1:8766). Para uma instalação própria, configure seu projeto Supabase conforme [ATIVACAO.md](ATIVACAO.md). Somente a URL e a chave publicável ficam no frontend.
 
-`npm test` executa a migração num PostgreSQL local em WASM (PGlite), valida isolamento com duas identidades e verifica as telas com JSDOM. O teste não acessa nem altera o Supabase online. A confirmação de e-mail e a recuperação de senha precisam ser verificadas no ambiente publicado.
+## O que os testes verificam
 
-## Recursos
+- Isolamento entre contas em consultas, alterações, relatórios e exportações.
+- Bloqueio de acesso anônimo, conta não confirmada e APIs compartilhadas antigas.
+- Preços calculados no banco e proteção contra duplicação de uma requisição.
+- Telas vazias, navegação, saída e troca de identidade entre abas.
 
-- Cadastro por e-mail e senha; confirmação de e-mail e recuperação de senha.
-- Clientes, histórico, preços, atendimentos, relatórios, metas e exportação exclusivos de cada conta.
-- Nome e comissão configuráveis em Meu perfil; nome do negócio opcional em Minha conta.
-- Preços e comissão calculados no servidor. Cancelamentos preservam o registro e seu motivo.
-- Trocar de conta ou sair limpa o painel e o nome do negócio. Respostas pendentes de outra sessão são descartadas.
-- Consultas atualizadas ao navegar, salvar ou clicar em Atualizar. Não há gravação offline ou atualização automática em tempo real.
+Os testes usam um banco local em WASM e não alteram o ambiente online. Envio de e-mails e autenticação completa no serviço hospedado exigem validação de integração.
 
-## Ativação e dados antigos
+## Estrutura
 
-Siga [ATIVACAO.md](ATIVACAO.md). Em projeto já configurado, aplique apenas `supabase/migrations/003_contas_individuais.sql` antes de publicar o frontend v3.
+```text
+ui.js                 Telas e navegação
+cloud.js              Sessão e comunicação com o Supabase
+domain.js             Datas, moeda, períodos e exportação
+supabase/migrations/  Estrutura e funções do banco
+tests/                Testes de isolamento e interface
+scripts/              Build e servidor de prévia
+```
 
-A migração preserva todas as tabelas antigas do schema `barber`. Elas deixam de ser acessíveis pelas funções antigas do aplicativo. Nenhum dado antigo é apagado ou copiado automaticamente para as novas contas; inclusive contas já existentes começam com um espaço individual vazio. A recuperação de históricos antigos exige atribuição explícita e revisão pelo administrador do banco.
+## Limites atuais
 
-O schema privado `personal` não deve ser exposto pela API. Suas tabelas têm RLS habilitada e sem acesso direto a `anon`/`authenticated`. A função `barber_account_api` verifica identidade, e-mail confirmado e propriedade em cada leitura/gravação. IDs enviados pelo navegador não autorizam acesso a outra conta. Não existe administrador global dentro do aplicativo.
+As telas atualizam ao navegar, salvar ou clicar em Atualizar. Não há gravação offline nem atualização automática em tempo real. A migração para contas individuais preserva o histórico antigo no banco, sem atribuí-lo automaticamente a novas contas. Consulte o [guia de operação](docs/OPERACAO.md).
 
-## Arquivos
+---
 
-- `ui.js`: telas; `cloud.js`: sessão e API; `domain.js`: cálculos e formatação.
-- `supabase/migrations/003_contas_individuais.sql`: estrutura e acesso individual.
-- `tests/`: isolamento do banco e comportamento das telas.
-- `scripts/`: build e prévia de `dist/`.
-- `demo.js` e `exportar-antigo.*`: arquivos históricos mantidos apenas no código-fonte, fora da publicação.
+Projeto do portfólio de [Luan Nascimento](https://github.com/luannascimentopsp-droid).
