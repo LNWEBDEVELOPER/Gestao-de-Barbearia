@@ -1,5 +1,5 @@
 import { cloud, configured, rpc } from './cloud.js';
-import { esc, money, dateLabel, normalize, addDays, period, totals, csv, anniversaryReached } from './domain.js';
+import { esc, money, dateLabel, normalize, addDays, period, totals, csv, anniversaryReached, similarNames, previousServices } from './domain.js';
 
 const $ = id => document.getElementById(id), app = $('app');
 let state, route='home', routeArgs={}, sequence=0, recovery=false;
@@ -76,17 +76,70 @@ async function services(args={},token){
     $('reportResult').innerHTML=`<p class="hint">Período: ${dateLabel(range.start)} a ${dateLabel(range.end)}${args.barber_id?' · '+esc(state.profiles.find(p=>p.id===args.barber_id)?.name||''):''}</p>`+metrics(rows)+`<details><summary>Resumo por profissional e serviço</summary>${owner()?breakdown(rows,'barber_name','Por profissional'):''}${breakdown(rows,'service_name','Por serviço')}${breakdown(rows,'payment','Por pagamento')}</details><div class="action-row">${button('Exportar CSV','exportReport')}${button('Imprimir relatório','print')}</div>`+serviceRows(rows,true);
     $('reportResult').querySelector('[data-action=exportReport]').onclick=()=>download('atendimentos.csv',csv([['Data','Cliente','Profissional','Serviço','Pagamento','Valor','Comissão','Situação'],...rows.map(s=>[s.day,s.client_name,s.barber_name,s.service_name,s.payment,s.amount,s.commission,s.canceled?'Cancelado':'Confirmado'])]),'text/csv;charset=utf-8');
 }
-function newService(){
-    const clients=state.clients.filter(c=>c.active),profiles=state.profiles.filter(p=>p.active),catalog=state.catalog.filter(c=>c.active);
-    app.innerHTML=panel('Registrar serviço','Os preços e a comissão são calculados pelo sistema.',`<form id="serviceForm">${select('client_id','Cliente',[['','Selecione o cliente'],...clients.map(c=>[c.id,c.name+(c.phone?' · '+c.phone:'')])])}${button('Cadastrar um novo cliente','clients','','link-texto')}<p class="registro">Profissional: <strong>${esc(state.me.name)}</strong></p><fieldset><legend>Serviços realizados</legend>${catalog.length?'':empty('Cadastre seus serviços e preços para começar.')}${catalog.length?'':button('Cadastrar serviços e preços','catalog','','link-texto')}<div class="catalog-grid">${catalog.map(c=>`<label class="service-choice"><input type="checkbox" name="catalog_ids" value="${esc(c.id)}"><span>${esc(c.name)}<small>${money(c.price)}</small></span></label>`).join('')}</div></fieldset><p class="service-total">Total <strong id="serviceTotal">${money(0)}</strong></p><div class="form-grid">${field('day','Data do atendimento','date',state.today,`required max="${state.today}" ${owner()?'':`min="${addDays(state.today,-7)}"`}`)}${select('payment','Pagamento',[['','Selecione'],...['Pix','Dinheiro','Cartão','Outro'].map(v=>[v,v])])}</div>${submit('Salvar atendimento')}</form>`);
+function clientPicker(clients,onSelect){
+    const input=$('clientLookup'),list=$('clientOptions'),hidden=$('client_id'),status=$('clientLookupStatus');
+    let matches=[],active=-1;
+    function close(){list.hidden=true;input.setAttribute('aria-expanded','false');input.removeAttribute('aria-activedescendant');active=-1;}
+    function choose(client){hidden.value=client.id;input.value=client.name;input.setCustomValidity('');status.textContent=`Selecionado: ${client.name}${client.phone?' · '+client.phone:''}`;close();onSelect(client);}
+    function render(){
+        matches=similarNames(clients,input.value);active=-1;
+        list.innerHTML=matches.map((c,i)=>`<li id="clientOption${i}" role="option" aria-selected="false" data-index="${i}"><strong>${esc(c.name)}</strong><small>${esc(c.phone||'Sem telefone')} · Último atendimento: ${dateLabel(c.last_day)}</small></li>`).join('');
+        list.hidden=!matches.length;input.setAttribute('aria-expanded',String(!!matches.length));input.removeAttribute('aria-activedescendant');
+        status.textContent=matches.length?'Escolha um cliente da lista. Use as setas e Enter ou toque no nome.':'Nenhum cliente encontrado. Você pode cadastrar um novo cliente abaixo.';
+    }
+    input.addEventListener('input',()=>{hidden.value='';input.setCustomValidity('Escolha um cliente da lista de sugestões.');onSelect(null);render();});
+    input.addEventListener('focus',render);
+    input.addEventListener('blur',close);
+    list.addEventListener('pointerdown',event=>event.preventDefault());
+    list.addEventListener('click',event=>{const option=event.target.closest('[data-index]');if(option){const client=matches[Number(option.dataset.index)];input.focus();choose(client);}});
+    input.addEventListener('keydown',event=>{
+        if(event.key==='Escape'){close();return;}
+        if(event.key==='ArrowDown'||event.key==='ArrowUp'){
+            event.preventDefault();if(list.hidden)render();if(!matches.length)return;
+            active=(active+(event.key==='ArrowDown'?1:active<0?0:-1)+matches.length)%matches.length;
+            [...list.children].forEach((el,i)=>el.setAttribute('aria-selected',String(i===active)));
+            input.setAttribute('aria-activedescendant',`clientOption${active}`);list.children[active].scrollIntoView?.({block:'nearest'});
+        }else if(event.key==='Enter'&&!list.hidden){event.preventDefault();if(active>=0)choose(matches[active]);}
+    });
+}
+function newService(args={},token){
+    const clients=state.clients.filter(c=>c.active),catalog=state.catalog.filter(c=>c.active);
+    app.innerHTML=panel('Registrar serviço','Os preços e a comissão são calculados pelo sistema.',`<form id="serviceForm"><div class="client-picker"><label for="clientLookup">Cliente</label><input id="clientLookup" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="clientOptions" aria-describedby="clientLookupStatus" autocomplete="off" placeholder="Digite o nome ou telefone do cliente" maxlength="100" required><input id="client_id" name="client_id" type="hidden"><ul id="clientOptions" class="suggestion-list" role="listbox" aria-label="Clientes sugeridos" hidden></ul><p id="clientLookupStatus" class="hint" role="status">Digite para encontrar um cliente cadastrado.</p></div>${button('Cadastrar um novo cliente','clients','','link-texto')}<p class="registro">Profissional: <strong>${esc(state.me.name)}</strong></p><section id="previousServices" class="previous-services" aria-label="Sugestões do histórico" aria-live="polite"><p class="hint">Selecione um cliente para ver os serviços anteriores.</p></section><fieldset><legend>Serviços realizados</legend>${catalog.length?'':empty('Cadastre seus serviços e preços para começar.')}${catalog.length?'':button('Cadastrar serviços e preços','catalog','','link-texto')}<div class="catalog-grid">${catalog.map(c=>`<label class="service-choice"><input type="checkbox" name="catalog_ids" value="${esc(c.id)}"><span>${esc(c.name)}<small>${money(c.price)}</small></span></label>`).join('')}</div></fieldset><p class="service-total">Total <strong id="serviceTotal">${money(0)}</strong></p><div class="form-grid">${field('day','Data do atendimento','date',state.today,`required max="${state.today}" ${owner()?'':`min="${addDays(state.today,-7)}"`}`)}${select('payment','Pagamento',[['','Selecione'],...['Pix','Dinheiro','Cartão','Outro'].map(v=>[v,v])])}</div>${submit('Salvar atendimento')}</form>`);
     $('serviceForm').onchange=()=>{$('serviceTotal').textContent=money([...document.querySelectorAll('[name=catalog_ids]:checked')].reduce((n,input)=>n+Number(catalog.find(c=>c.id===input.value).price),0));};
+    let historyRequest=0;
+    async function loadHistory(client){
+        const request=++historyRequest,container=$('previousServices');
+        if(!client){container.innerHTML='<p class="hint">Selecione um cliente para ver os serviços anteriores.</p>';return;}
+        container.innerHTML='<p class="hint">Consultando serviços anteriores…</p>';
+        const current=()=>token===sequence&&request===historyRequest&&container.isConnected;
+        try{
+            const rows=await call('history',{client_id:client.id});if(!current())return;
+            const suggestions=previousServices(rows,catalog);
+            container.innerHTML=`<h3>Serviços anteriores de ${esc(client.name)}</h3>`+(suggestions.length?'<p class="hint">Toque em uma sugestão para adicionar aos serviços realizados. Valores da tabela atual.</p>'+suggestions.map((s,i)=>`<article class="registro"><strong>${esc(s.service_name)}</strong><p>Última vez: ${dateLabel(s.day)}</p>${s.catalog_ids.length?`<button type="button" class="botao-secundario" data-previous="${i}">Adicionar ao atendimento · ${money(s.current_price)}</button>`:'<p class="hint">Serviço alterado ou indisponível na tabela atual. Escolha os serviços abaixo.</p>'}</article>`).join(''):empty('Este cliente ainda não tem atendimentos anteriores.'));
+            container.querySelectorAll('[data-previous]').forEach(btn=>btn.onclick=()=>{
+                const suggestion=suggestions[Number(btn.dataset.previous)];
+                document.querySelectorAll('[name=catalog_ids]').forEach(input=>{if(suggestion.catalog_ids.includes(input.value))input.checked=true;});
+                $('serviceForm').onchange();notify('Serviços adicionados. Confira a seleção antes de salvar.');
+            });
+        }catch(error){if(current()){container.innerHTML='<p class="hint">Não foi possível consultar o histórico. Você pode escolher os serviços abaixo.</p><button type="button" class="link-texto">Tentar novamente</button>';container.querySelector('button').onclick=()=>loadHistory(client);}}
+    }
+    clientPicker(clients,loadHistory);
     const request_id=crypto.randomUUID();
     bindForm('serviceForm',async(data,form)=>{const catalog_ids=new FormData(form).getAll('catalog_ids');if(!data.client_id||!data.payment||!catalog_ids.length)throw new Error('Selecione cliente, serviços e pagamento.');await save('service_add',{...data,barber_id:state.me.id,catalog_ids,request_id},'services',{start:data.day,end:data.day});});
+}
+function existingNameSuggestions(formId,items,editingId,action,label,describe){
+    const input=$(formId).querySelector('[name=name]'),container=document.createElement('div');
+    container.className='existing-suggestions';container.setAttribute('aria-live','polite');input.parentElement.append(container);
+    input.addEventListener('input',()=>{
+        const matches=input.value.trim().length>=2?similarNames(items.filter(item=>item.id!==editingId),input.value,5):[];
+        container.innerHTML=matches.length?`<p class="hint">${label}</p>`+matches.map(item=>button(`<strong>${esc(item.name)}</strong><small>${esc(describe(item))}</small>`,action,item.id,'existing-suggestion')).join(''):'';
+    });
 }
 function clients(args={}){
     const editing=state.clients.find(c=>c.id===args.id);
     app.innerHTML=panel('Clientes','Cadastro, retornos e histórico completo de cada cliente.',`<details ${editing?'open':''}><summary>${editing?'Editar cliente':'＋ Cadastrar cliente'}</summary><form id="clientForm">${field('name','Nome completo','text',editing?.name||'','required minlength="2" maxlength="100" autocomplete="name"')}${field('phone','Telefone / WhatsApp (opcional)','tel',editing?.phone||'','maxlength="20" autocomplete="tel"')}<label for="notes">Observações (opcional)</label><textarea id="notes" name="notes" maxlength="2000">${esc(editing?.notes||'')}</textarea>${submit(editing?'Salvar alterações':'Cadastrar cliente')}</form></details><div class="search-row">${field('clientSearch','Pesquisar nome ou telefone','search','','placeholder="Digite para pesquisar…"')}<label class="check-label"><input id="showInactive" type="checkbox"> Incluir arquivados</label></div><div id="clientList"></div><details><summary>Retornos sugeridos · 20 dias</summary><p class="hint">Sugestões com base no último atendimento registrado. Não são agendamentos confirmados.</p><div id="returnList"></div></details>`);
     bindForm('clientForm',data=>save('client_save',{...data,id:editing?.id},'clients'));
+    existingNameSuggestions('clientForm',state.clients,editing?.id,'editClient','Clientes parecidos já cadastrados. Toque para abrir o cadastro existente.',c=>`${c.phone||'Sem telefone'}${c.active?'':' · Arquivado'}`);
     function list(){const q=normalize($('clientSearch').value);const rows=state.clients.filter(c=>(c.active||$('showInactive').checked)&&(normalize(c.name).includes(q)||c.phone.includes(q)));$('clientList').innerHTML=rows.length?rows.map(c=>`<article class="registro"><div class="record-main"><div><strong>${esc(c.name)}${c.active?'':' · Arquivado'}</strong><p>${esc(c.phone||'Sem telefone')}</p><small>Último atendimento: ${dateLabel(c.last_day)}</small></div>${button('Ver histórico ↗','history',c.id,'link-texto')}</div><div class="action-row">${owner()||c.created_by===state.me.id?button('Editar','editClient',c.id,'link-texto'):''}${owner()?button(c.active?'Arquivar':'Reativar','clientActive',c.id,'link-texto'):''}</div></article>`).join(''):empty('Nenhum cliente encontrado.');}
     $('clientSearch').oninput=list;$('showInactive').onchange=list;list();
     const returns=state.clients.filter(c=>c.active&&c.last_day&&addDays(c.last_day,20)<=addDays(state.today,3)).sort((a,b)=>a.last_day.localeCompare(b.last_day));
@@ -115,6 +168,7 @@ function catalog(args={}){
     const editing=state.catalog.find(c=>c.id===args.id);
     app.innerHTML=panel('Tabela de preços','Alterações de preço valem apenas para novos atendimentos.',`<form id="catalogForm" class="form-grid">${field('name','Nome do serviço','text',editing?.name||'','required minlength="2" maxlength="100"')}${field('price','Preço (R$)','number',editing?.price||'','required min="0.01" max="1000000" step="0.01"')}${submit(editing?'Salvar preço':'Adicionar serviço')}</form>${state.catalog.map(c=>`<div class="registro record-main"><div><strong>${esc(c.name)}</strong><p>${money(c.price)} · ${c.active?'Ativo':'Desativado'}</p></div><div>${button('Editar','editCatalog',c.id,'link-texto')}${button(c.active?'Desativar':'Ativar','catalogActive',c.id,'link-texto')}</div></div>`).join('')}`);
     bindForm('catalogForm',data=>save('catalog_save',{...data,id:editing?.id,active:editing?.active??true},'catalog'));
+    existingNameSuggestions('catalogForm',state.catalog,editing?.id,'editCatalog','Serviços parecidos já cadastrados. Toque para editar o serviço existente.',c=>`${money(c.price)} · ${c.active?'Ativo':'Desativado'}`);
 }
 function account(){
     app.innerHTML=panel('Minha conta','Seu espaço individual de gestão.',`<p class="registro">${esc(state.me.email)}</p><div class="action-row">${button('Meu perfil','team')}${button('Tabela de preços','catalog')}${button('Registro de alterações','audit')}</div><details><summary>Dados do meu negócio (opcional)</summary><form id="shopForm">${field('name','Nome do negócio','text',state.shop.name,'maxlength="100"')}${field('phone','Telefone','tel',state.shop.phone,'maxlength="20"')}${field('address','Endereço','text',state.shop.address,'maxlength="300"')}${submit('Salvar dados')}</form></details><details ${recovery?'open':''}><summary>Alterar minha senha</summary><form id="passwordForm">${field('newPassword','Nova senha','password','','required minlength="10" autocomplete="new-password"')}${field('confirmPassword','Confirme a senha','password','','required minlength="10" autocomplete="new-password"')}${submit('Alterar senha')}</form></details><details><summary>Exportar meus dados</summary><p class="hint">A exportação contém apenas os registros desta conta. Guarde o arquivo em local privado.</p>${button('Exportar meus registros','backup')}</details>${button('Sair da conta','logout','','botao-excluir')}`);

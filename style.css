@@ -320,6 +320,17 @@ button.card:hover { background: #25271f; border-color: #817150; }
 .form-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; align-items:end; }
 .form-grid .botao-principal { align-self:end; min-height:48px; }
 .form-field { min-width:0; }
+.client-picker { position:relative; }
+.suggestion-list { list-style:none; padding:0; margin:4px 0; max-height:280px; overflow-y:auto; border:1px solid var(--dourado); border-radius:8px; background:var(--card); }
+.suggestion-list li { padding:14px 16px; cursor:pointer; border-bottom:1px solid var(--linha); overflow-wrap:anywhere; }
+.suggestion-list li:last-child { border-bottom:0; }
+.suggestion-list li:hover,.suggestion-list li[aria-selected=true] { background:var(--dourado-suave); }
+.suggestion-list small,.existing-suggestion small { display:block; margin-top:4px; color:var(--texto-suave); }
+.existing-suggestion { display:block; width:100%; text-align:left; padding:12px; margin:6px 0; border:1px solid var(--linha); border-radius:8px; background:var(--card); color:var(--texto); overflow-wrap:anywhere; }
+.existing-suggestion:hover { border-color:var(--dourado); }
+.previous-services { margin-top:22px; }
+.previous-services .registro { padding:14px; }
+.previous-services button { white-space:normal; }
 .record-main { display:flex; justify-content:space-between; align-items:center; gap:18px; }
 .record-main > div { min-width:0; overflow-wrap:anywhere; }
 .record-amount { text-align:right; flex-shrink:0; }
