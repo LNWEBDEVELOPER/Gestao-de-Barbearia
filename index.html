@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#101110">
-    <meta name="color-scheme" content="dark">
-    <title>Gestão de Barbearia</title>
+    <meta name="theme-color" content="#f7f5f1">
+    <meta name="color-scheme" content="light dark">
+    <title>Gestão de Barbearia | Estilo e cuidado em cada detalhe</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23141514'/%3E%3Ctext x='50' y='70' font-size='64' font-family='Georgia' text-anchor='middle' fill='%23d6b077'%3EG%3C/text%3E%3C/svg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,7 +13,50 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="telaLogin" class="tela-login">
+    <div id="siteHome" class="site-home">
+        <header class="site-header">
+            <a class="site-brand" href="#inicio" aria-label="Gestão de Barbearia, início"><span class="site-brand-mark">M</span><span>GESTÃO<small>DE BARBEARIA</small></span></a>
+            <nav class="site-nav" aria-label="Navegação do site">
+                <a href="#inicio">Início</a><a href="#recursos">Recursos</a><a href="#experiencia">Experiência</a>
+            </nav>
+            <button class="site-button site-button-dark" type="button" data-open-login>Acessar gestão <span aria-hidden="true">↗</span></button>
+        </header>
+        <main>
+            <section class="site-hero" id="inicio">
+                <div class="site-hero-copy">
+                    <span class="site-eyebrow">CUIDADO EM CADA DETALHE</span>
+                    <h1>Mais do que um corte.<br><em>Uma experiência.</em></h1>
+                    <p>Estilo, precisão e atenção em cada atendimento. E uma gestão simples para cuidar bem de cada parte da sua barbearia.</p>
+                    <div class="site-actions"><button class="site-button site-button-dark" type="button" data-open-login>Acessar minha gestão <span aria-hidden="true">→</span></button><a class="site-button site-button-light" href="#recursos">Conhecer recursos</a></div>
+                    <div class="site-proof"><span class="proof-mark" aria-hidden="true">✦</span><span><strong>Seu talento merece uma rotina à altura</strong><small>Atendimentos, clientes e resultados em um só lugar</small></span></div>
+                </div>
+                <div class="site-hero-image" role="img" aria-label="Barbeiro cuidando do corte de um cliente"></div>
+                <span class="hero-caption">PRECISÃO &nbsp; / &nbsp; ESTILO &nbsp; / &nbsp; IDENTIDADE</span>
+            </section>
+            <section class="site-benefits" aria-label="Recursos principais">
+                <article><span class="benefit-icon">✂</span><div><strong>Serviços organizados</strong><small>Tenha seu catálogo e valores sempre à mão.</small></div></article>
+                <article><span class="benefit-icon">♙</span><div><strong>Histórico de clientes</strong><small>Consulte os atendimentos de cada cliente.</small></div></article>
+                <article><span class="benefit-icon">▦</span><div><strong>Rotina mais clara</strong><small>Registre atendimentos e formas de pagamento.</small></div></article>
+                <article><span class="benefit-icon">↗</span><div><strong>Resultados visíveis</strong><small>Acompanhe seus números com relatórios.</small></div></article>
+            </section>
+            <section class="site-services" id="recursos">
+                <div class="site-section-heading"><div><span class="site-eyebrow">SUA BARBEARIA, BEM CUIDADA</span><h2>Precisão em <em>cada detalhe.</em></h2></div><p>Uma ferramenta direta para você dedicar mais atenção ao trabalho e manter a rotina organizada.</p></div>
+                <div class="feature-grid">
+                    <article class="feature-card"><div class="feature-picture feature-cut" role="img" aria-label="Detalhe de um corte masculino"></div><div class="feature-copy"><span>01 / ATENDIMENTOS</span><h3>Seu trabalho, registrado.</h3><p>Registre serviços, valores e pagamentos no mesmo lugar.</p><button type="button" data-open-login>Entrar na gestão <span aria-hidden="true">↗</span></button></div></article>
+                    <article class="feature-card"><div class="feature-picture feature-tools" role="img" aria-label="Ferramentas profissionais de barbearia"></div><div class="feature-copy"><span>02 / CLIENTES</span><h3>Um cuidado que continua.</h3><p>Consulte o histórico e mantenha as informações de cada cliente organizadas.</p><button type="button" data-open-login>Entrar na gestão <span aria-hidden="true">↗</span></button></div></article>
+                    <article class="feature-card"><div class="feature-picture feature-shop" role="img" aria-label="Interior de uma barbearia elegante"></div><div class="feature-copy"><span>03 / RESULTADOS</span><h3>Clareza para evoluir.</h3><p>Acompanhe o movimento e veja os resultados do seu trabalho.</p><button type="button" data-open-login>Entrar na gestão <span aria-hidden="true">↗</span></button></div></article>
+                </div>
+            </section>
+            <section class="site-experience" id="experiencia">
+                <div class="experience-photo" role="img" aria-label="Ambiente de barbearia com cadeiras profissionais"></div>
+                <div class="experience-copy"><span class="site-eyebrow">TRADIÇÃO EM CADA DETALHE</span><h2>Seu estilo.<br><em>Sua história.</em></h2><p>Da primeira conversa ao acabamento final, cada detalhe faz parte da experiência. A gestão acompanha você nessa jornada.</p><button class="site-button site-button-gold" type="button" data-open-login>Acessar minha gestão <span aria-hidden="true">→</span></button></div>
+            </section>
+            <section class="site-cta"><div><span class="site-eyebrow">UM ESPAÇO FEITO PARA SUA ROTINA</span><h2>Pronto para cuidar<br>da sua barbearia?</h2></div><button class="site-button site-button-dark" type="button" data-open-login>Entrar no sistema <span aria-hidden="true">↗</span></button></section>
+        </main>
+        <footer class="site-footer"><a class="site-brand" href="#inicio"><span class="site-brand-mark">M</span><span>GESTÃO<small>DE BARBEARIA</small></span></a><p>Precisão nos detalhes. Cuidado em cada atendimento.</p><div><a href="#inicio">Início</a><a href="#recursos">Recursos</a><button type="button" data-open-login>Acessar gestão</button></div><small class="site-copyright">© <span id="siteYear"></span> Gestão de Barbearia</small></footer>
+    </div>
+
+    <div id="telaLogin" class="tela-login" hidden>
         <div class="login-layout">
             <section class="login-apresentacao" aria-label="Gestão de Barbearia">
                 <div class="marca"><span class="marca-simbolo"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="8" cy="24" r="4"/><circle cx="24" cy="24" r="4"/><path d="m10.8 21.2 13-16M21.2 21.2 8.2 5.2M16 15l5 6"/></svg></span><span class="marca-nome">GESTÃO<small>DE BARBEARIA</small></span></div>
@@ -25,6 +68,7 @@
                 <span class="login-assinatura">PRECISÃO &nbsp; / &nbsp; ESTILO &nbsp; / &nbsp; IDENTIDADE</span>
             </section>
             <section class="login-caixa" aria-labelledby="tituloLogin">
+                <button class="login-voltar" type="button" data-open-home>← Voltar ao site</button>
                 <span class="eyebrow">SEU ESPAÇO DE GESTÃO</span>
                 <h2 id="tituloLogin">Bom ter você<br> de volta.</h2>
                 <p class="login-subtitulo">Seu próximo grande atendimento começa aqui.</p>
@@ -64,6 +108,8 @@
     <div id="statusMessage" class="status-message" role="status" aria-live="polite" aria-atomic="true"></div>
     <noscript>Ative o JavaScript para usar o sistema da barbearia.</noscript>
     <script src="config.js"></script>
+    <script src="landing.js"></script>
     <script type="module" src="app.js"></script>
 </body>
 </html>
+
