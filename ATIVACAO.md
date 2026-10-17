@@ -3,11 +3,12 @@
 ## Banco já existente
 
 1. No Supabase do projeto configurado em `config.js`, abra SQL Editor.
-2. Execute uma vez `supabase/migrations/003_contas_individuais.sql` integralmente. A operação é transacional.
-3. Confirme que existe `public.barber_account_api(text,jsonb)` e que `authenticated` não pode mais executar `barber_api` nem `barber_import`.
-4. Publique o frontend v3 imediatamente após a migração. A versão antiga deixará de consultar dados compartilhados.
+2. Se `public.barber_account_api(text,jsonb)` ainda não existir, execute uma vez `supabase/migrations/003_contas_individuais.sql` integralmente. A operação é transacional. Não reaplique essa migração se as contas individuais já estiverem ativas.
+3. Execute uma vez `supabase/migrations/004_comissao_padrao_50.sql` para definir 50% como padrão e ajustar contas que ainda estejam no padrão antigo de 0%.
+4. Confirme que existe `public.barber_account_api(text,jsonb)` e que `authenticated` não pode mais executar `barber_api` nem `barber_import`.
+5. Publique o frontend v3 após as migrações. A versão antiga deixará de consultar dados compartilhados.
 
-Não reaplique 001/002 em banco existente. Em projeto novo, execute 001, 002 e 003 nessa ordem. Nenhum perfil de dono precisa ser inserido manualmente: cada usuário com e-mail confirmado recebe seu próprio espaço vazio no primeiro acesso.
+Não reaplique 001/002 em banco existente. Em projeto novo, execute 001, 002, 003 e 004 nessa ordem. Nenhum perfil de dono precisa ser inserido manualmente: cada usuário com e-mail confirmado recebe seu próprio espaço vazio no primeiro acesso, com comissão inicial de 50%.
 
 ## Autenticação
 
@@ -30,3 +31,4 @@ Execute `npm ci`, `npm test` e `npm run build`. Publique apenas `dist/`. O workf
 A migração não elimina o schema `barber`, usuários ou dados de autenticação. O histórico compartilhado antigo permanece restrito à administração do banco. As novas contas não recebem esse histórico automaticamente. Os antigos arquivos de exportação local não são distribuídos em `dist/`.
 
 Se for necessário reverter o lançamento, preserve também o schema `personal` e seus registros novos. Restaurar o frontend anterior exige revisar e reativar as permissões antigas, o que volta a compartilhar dados e não atende ao modelo individual solicitado. Não faça essa reversão silenciosamente.
+
