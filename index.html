@@ -82,7 +82,19 @@
                     <div class="action-row"><button type="button" class="link-texto" id="firstAccess">Criar minha conta</button><button type="button" class="link-texto" id="forgotPassword">Esqueci minha senha</button></div>
                 </form>
                 <p id="loginErro" class="login-erro" role="alert" aria-live="polite"></p>
-                <p class="login-ajuda">Crie sua conta com e-mail e senha. Seus clientes, serviços e valores ficam vinculados somente a ela.</p>
+                <section id="pendingAccess" class="pending-access estado-vazio" hidden aria-labelledby="pendingTitle">
+                    <span class="eyebrow">ACESSO COM AUTORIZAÇÃO</span>
+                    <h3 id="pendingTitle">Sua conta aguarda aprovação.</h3>
+                    <p id="pendingMessage">Confirme seu e-mail e solicite a liberação. O painel só será aberto após a aprovação.</p>
+                    <p class="hint">Conta: <strong id="pendingEmail"></strong></p>
+                    <div class="action-row">
+                        <a id="requestAccessEmail" class="botao-secundario" href="#">Solicitar por e-mail</a>
+                        <a id="requestAccessWhatsApp" class="botao-principal" href="#" target="_blank" rel="noopener noreferrer">Solicitar pelo WhatsApp</a>
+                    </div>
+                    <button id="pendingCheck" type="button" class="link-texto">Já fui aprovado — verificar acesso</button>
+                    <button id="pendingExit" type="button" class="link-texto">Sair e voltar ao login</button>
+                </section>
+                <p id="loginAjuda" class="login-ajuda">Crie sua conta com e-mail e senha. O acesso à gestão depende de aprovação.</p>
                 <p id="setupNotice" class="setup-notice" hidden>O acesso online aguarda configuração.</p>
                 <span class="login-rodape">GESTÃO <span>DE BARBEARIA</span></span>
             </section>

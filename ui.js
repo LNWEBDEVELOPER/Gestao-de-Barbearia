@@ -42,14 +42,27 @@ function download(name,content,type='application/json'){const a=document.createE
 function serviceRows(rows,canCancel=false){return rows.length?`<div class="records">${rows.map(s=>`<article class="registro ${s.canceled?'canceled':''}"><div class="record-main"><div><strong>${esc(s.client_name||s.barber_name)}</strong><p>${esc(s.service_name)}</p><small>${dateLabel(s.day)} · ${esc(s.barber_name)} · ${esc(s.payment)}</small></div><div class="record-amount"><strong>${money(s.amount)}</strong>${s.commission!==undefined?`<small>Comissão ${money(s.commission)}</small>`:''}</div></div>${s.canceled?`<p class="hint">Cancelado: ${esc(s.cancel_reason)}</p>`:canCancel&&owner()?button('Cancelar registro','cancel',s.id,'botao-excluir'):''}</article>`).join('')}</div>`:empty('Nenhum atendimento encontrado neste período.');}
 function bindForm(id,handler){$(id)?.addEventListener('submit',async event=>{event.preventDefault();const form=event.currentTarget;if(form.dataset.busy)return;form.dataset.busy='true';const btn=form.querySelector('[type=submit]'),previous=btn.textContent;btn.disabled=true;btn.textContent='Salvando…';try{await handler(Object.fromEntries(new FormData(form)),form);}catch(error){notify(errorMessage(error),true);}finally{delete form.dataset.busy;btn.disabled=false;btn.textContent=previous;}});}
 async function save(action,payload,next=route,args=routeArgs){await call(action,payload);if(await go(next,args))notify('Salvo com sucesso.');else notify('O registro foi salvo, mas não foi possível atualizar a tela. Use Atualizar antes de tentar novamente.',true);}
-function showLogin(){sequence++;state=null;route='home';routeArgs={};applyBrand();$('headerPerfil').textContent='Minha conta';$('syncTime').textContent='';app.innerHTML='';$('appPrincipal').style.display='none';$('siteHome').hidden=true;$('telaLogin').hidden=false;$('telaLogin').style.display='flex';$('loginSenha').value='';$('loginEmail').focus();}
+function showLogin(){sequence++;state=null;route='home';routeArgs={};applyBrand();$('headerPerfil').textContent='Minha conta';$('syncTime').textContent='';app.innerHTML='';$('appPrincipal').style.display='none';$('siteHome').hidden=true;$('telaLogin').hidden=false;$('telaLogin').style.display='flex';$('pendingAccess').hidden=true;$('loginForm').hidden=false;$('loginAjuda').hidden=false;$('loginSenha').value='';$('loginEmail').focus();}
+function showPendingAccess(email,message='Confirme seu e-mail e solicite a liberação. O painel só será aberto após a aprovação.'){
+    $('siteHome').hidden=true;$('appPrincipal').style.display='none';$('telaLogin').hidden=false;$('telaLogin').style.display='flex';
+    $('loginForm').hidden=true;$('loginAjuda').hidden=true;$('loginErro').textContent='';$('pendingAccess').hidden=false;
+    $('pendingEmail').textContent=email||'';$('pendingMessage').textContent=message;
+    const subject='Solicitação de acesso — Gestão de Barbearia';
+    const body=`Olá, Luan. Solicito acesso à Gestão de Barbearia.\n\nMeu e-mail de cadastro: ${email||''}`;
+    $('requestAccessEmail').href=`mailto:luannascimentopsp@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    $('requestAccessWhatsApp').href=`https://wa.me/5583998083995?text=${encodeURIComponent(body)}`;
+    $('pendingTitle').focus?.();
+}
 async function go(page='home',args={}){
     const current=++sequence;route=page;routeArgs=args;app.setAttribute('aria-busy','true');
     try{
-        const next=await call('state');if(current!==sequence)return;state=next;applyBrand(state.shop.name);
+        const next=await call('state');if(current!==sequence)return;
+        if(next.access==='pending'){state=null;showPendingAccess(next.email);return true;}
+        state=next;applyBrand(state.shop.name);
         $('siteHome').hidden=true;$('telaLogin').style.display='none';$('appPrincipal').style.display='block';$('headerPerfil').textContent=state.me.name;
         document.querySelectorAll('.menu-inferior button').forEach(b=>{const selected=b.dataset.page===page||(page==='newService'&&b.dataset.page==='services')||(page==='history'&&b.dataset.page==='clients');b.classList.toggle('ativo',selected);if(selected)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
-        const views={home,services,clients,history,newService,goals,team,catalog,account,audit};
+        const views={home,services,clients,history,newService,goals,team,catalog,account,audit,requests};
+        if(page==='requests'&&!state.is_admin)throw new Error('Acesso reservado ao administrador.');
         if(['team','catalog','audit'].includes(page)&&!owner())throw new Error('Acesso reservado ao dono.');
         await (views[page]||home)(args,current);if(current!==sequence)return;
         window.scrollTo({top:0,behavior:'instant'});app.querySelector('h2[tabindex],h1')?.focus({preventScroll:true});
@@ -62,11 +75,17 @@ function home(){
     const t=totals(state.services.filter(s=>s.day===state.today&&!s.canceled)),recent=state.services.filter(s=>!s.canceled).slice(0,4);
     const shortcuts=[['services','calendar','Atendimentos','Consulte seus registros'],['clients','people','Clientes','Conheça cada história'],...(owner()?[['team','cut','Meu perfil','Nome e comissão'],['services','money','Financeiro','Acompanhe os resultados']]:[])];
     app.innerHTML=`<div class="dashboard-home"><div class="dashboard-intro"><div><span class="eyebrow">MINHA GESTÃO</span><h1 tabindex="-1">${owner()?'Seu painel':'Olá, '+esc(state.me.name.split(' ')[0])}</h1></div><span class="dashboard-data">${icon('calendar')}${dateLabel(state.today)}</span></div>
+    ${state.is_admin?`<section class="painel painel-aprovacoes"><div class="secao-cabecalho"><div><span class="eyebrow">CONTROLE DE ACESSO</span><h2>Solicitações pendentes</h2></div><strong>${(state.pending_requests||[]).length}</strong></div><p>Novos usuários só entram na gestão depois da sua aprovação.</p>${button('Revisar solicitações ↗','requests','','botao-principal')}</section>`:''}
     <section class="banner-dashboard"><div class="banner-conteudo"><span class="eyebrow">PRECISÃO. ESTILO. IDENTIDADE.</span><h2>Tradição no corte.<br><em>Evolução na gestão.</em></h2><p>Seu talento merece uma rotina à altura.<br>Cuide de cada atendimento, do início ao fim.</p>${button(icon('cut')+' Registrar serviço ↗','newService','','botao-principal')}</div><span class="banner-selo">CUIDADO EM CADA DETALHE</span></section>
     <section class="resumo-grid" aria-label="Resumo de hoje">${[['cut','Atendimentos hoje',t.count],['money','Faturamento hoje',money(t.amount)],['target','Média por atendimento',money(t.average)]].map(([i,label,value])=>`<div class="resumo-item"><span class="resumo-icone">${icon(i)}</span><div><small>${label}</small><strong>${value}</strong><p>Seus atendimentos</p></div></div>`).join('')}</section>
     <section><div class="secao-cabecalho"><h2>Tudo ao seu alcance</h2><small>Seu dia, bem organizado.</small></div><div class="cards-dashboard">${shortcuts.map(([page,i,label,detail])=>`<button class="card-dashboard" data-action="${page}"><span class="icone-card">${icon(i)}</span><span><strong>${label}</strong><small>${detail}</small></span><span class="atalho-seta">↗</span></button>`).join('')}</div></section>
     <div class="dashboard-detalhes"><section class="dashboard-painel"><div class="secao-cabecalho"><h2>Últimos atendimentos</h2>${button('Ver todos ↗','services','','link-texto')}</div>${recent.length?recent.map(s=>`<div class="atendimento-linha"><span class="atendimento-avatar">${esc(s.client_name.charAt(0))}</span><div class="atendimento-nome"><strong>${esc(s.client_name)}</strong><small>${esc(s.service_name)}</small></div><div class="atendimento-valor"><strong>${money(s.amount)}</strong><small>${dateLabel(s.day)}</small></div></div>`).join(''):`<div class="estado-vazio">${icon('cut')}<strong>Uma nova história começa na cadeira.</strong><p>Registre o primeiro serviço para acompanhar os resultados.</p></div>`}</section>
     <div class="dashboard-lateral"><section class="meta-destaque">${icon('target')}<span class="eyebrow">UM PASSO ALÉM</span><h2>Seu próximo objetivo.</h2><p>Metas claras para cada dia, semana e mês.</p>${button('Acompanhar metas ↗','goals')}</section></div></div></div>`;
+}
+async function requests(){
+    if(!state?.is_admin)throw new Error('Acesso reservado ao administrador.');
+    const pending=await call('admin_pending');
+    app.innerHTML=panel('Solicitações de acesso','Aprove somente pessoas que você reconhece. O cadastro precisa ter o e-mail confirmado.',pending.length?`<div class="records">${pending.map(user=>`<article class="registro"><div class="record-main"><div><strong>${esc(user.email)}</strong><small>Cadastro em ${new Date(user.created_at).toLocaleDateString('pt-BR')}</small></div>${button('Aprovar acesso','approveUser',user.id,'botao-principal')}</div></article>`).join('')}</div>`:empty('Nenhuma solicitação pendente.'));
 }
 async function services(args={},token){
     const range=args.start?args:period('month',state.today);
@@ -180,7 +199,8 @@ async function audit(args,token){const rows=await call('audit');if(token!==seque
 document.addEventListener('click',async event=>{
     const el=event.target.closest('[data-action]');if(!el||el.disabled)return;const {action,id}=el.dataset;
     try{
-        if(['home','services','clients','newService','goals','team','catalog','account','audit','history'].includes(action)){await go(action,{id});return;}
+        if(['home','services','clients','newService','goals','team','catalog','account','audit','history','requests'].includes(action)){await go(action,{id});return;}
+        if(action==='approveUser'){await call('admin_approve',{id});await go('requests');notify('Acesso aprovado. A pessoa já pode entrar na gestão.');return;}
         if(action==='period')await go('services',period(id,state.today));
         if(action==='editClient')await go('clients',{id});
         if(action==='editProfile')await go('team',{id});
@@ -197,14 +217,16 @@ document.addEventListener('click',async event=>{
 });
 document.querySelectorAll('[data-page]').forEach(el=>el.onclick=()=>go(el.dataset.page));$('marcaHome').onclick=()=>go();
 $('loginForm').onsubmit=async event=>{event.preventDefault();const btn=$('btnEntrar');btn.disabled=true;$('loginErro').textContent='';try{if(!configured)throw new Error('O acesso online ainda precisa ser configurado.');const {error}=await cloud.auth.signInWithPassword({email:$('loginEmail').value.trim(),password:$('loginSenha').value});if(error)throw error;$('loginSenha').value='';await go();}catch(error){$('loginErro').textContent=errorMessage(error);}finally{btn.disabled=false;}};
-$('firstAccess').onclick=async()=>{if(!configured){$('loginErro').textContent='O acesso online ainda não foi ativado.';return;}if(!$('loginForm').reportValidity())return;$('firstAccess').disabled=true;try{if($('loginSenha').value.length<10)throw new Error('Use pelo menos 10 caracteres para criar sua senha.');const {error}=await cloud.auth.signUp({email:$('loginEmail').value.trim(),password:$('loginSenha').value,options:{emailRedirectTo:new URL('./',location.href).href}});if(error)throw error;$('loginSenha').value='';$('loginErro').textContent='Confira seu e-mail para confirmar o cadastro. Depois entre para começar a cadastrar seus próprios dados.';}catch(error){$('loginErro').textContent=errorMessage(error);}finally{$('firstAccess').disabled=false;}};
+$('firstAccess').onclick=async()=>{if(!configured){$('loginErro').textContent='O acesso online ainda não foi ativado.';return;}if(!$('loginForm').reportValidity())return;$('firstAccess').disabled=true;try{if($('loginSenha').value.length<10)throw new Error('Use pelo menos 10 caracteres para criar sua senha.');const email=$('loginEmail').value.trim();const {error}=await cloud.auth.signUp({email,password:$('loginSenha').value,options:{emailRedirectTo:new URL('./',location.href).href}});if(error)throw error;$('loginSenha').value='';showPendingAccess(email,'Cadastro recebido. Confirme o e-mail enviado pelo sistema e solicite sua liberação por um dos canais abaixo. A gestão só será aberta após aprovação.');}catch(error){$('loginErro').textContent=errorMessage(error);}finally{$('firstAccess').disabled=false;}};
+$('pendingCheck').onclick=async()=>{const {data,error}=await cloud.auth.getSession();if(error){notify(errorMessage(error),true);return;}if(!data.session){showLogin();$('loginErro').textContent='Entre após confirmar seu e-mail para consultar a aprovação.';return;}await go();};
+$('pendingExit').onclick=async()=>{const {error}=await cloud.auth.signOut();if(error){notify(errorMessage(error),true);return;}showLogin();};
 $('forgotPassword').onclick=async()=>{if(!configured){$('loginErro').textContent='O acesso online ainda não foi ativado.';return;}if(!$('loginEmail').reportValidity())return;$('forgotPassword').disabled=true;try{const {error}=await cloud.auth.resetPasswordForEmail($('loginEmail').value.trim(),{redirectTo:new URL('./',location.href).href});if(error)throw error;$('loginErro').textContent='Se houver uma conta para esse e-mail, você receberá as instruções de recuperação.';}catch(error){$('loginErro').textContent=errorMessage(error);}finally{$('forgotPassword').disabled=false;}};
 window.addEventListener('offline',()=>notify('Sem conexão. Reconecte-se antes de salvar.',true));window.addEventListener('online',()=>notify('Conexão restabelecida. Use Atualizar para buscar os dados mais recentes.'));
 async function boot(){
     applyBrand();
     $('setupNotice').hidden=configured;
     if(cloud){cloud.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'){recovery=true;showLogin();setTimeout(()=>go('account'),0);}if(event==='SIGNED_OUT'){recovery=false;showLogin();}if(event==='SIGNED_IN'&&state?.me.id!==session?.user.id){recovery=false;showLogin();setTimeout(()=>go(),0);}});const {data,error}=await cloud.auth.getSession();if(error)notify(errorMessage(error),true);if(data.session&&!recovery)await go();}
-    $('bootMessage').hidden=true;$('loginForm').hidden=false;
+    $('bootMessage').hidden=true;if($('pendingAccess').hidden)$('loginForm').hidden=false;
 }
 boot().catch(error=>{notify(errorMessage(error),true);$('bootMessage').hidden=true;$('loginForm').hidden=false;});
 

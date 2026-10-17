@@ -20,6 +20,7 @@ Um controle de atendimentos precisa relacionar clientes, serviços, valores e hi
 - Tabela de serviços e preços; comissão padrão de 50%, calculada no servidor e configurável no perfil.
 - Relatórios por período, metas e exportação dos registros da conta.
 - Login, confirmação de e-mail e recuperação de senha pelo Supabase Auth.
+- Aprovação obrigatória do administrador para liberar novos cadastros.
 - Cancelamento de atendimento com motivo e preservação do histórico.
 - Nome do negócio e perfil personalizáveis.
 

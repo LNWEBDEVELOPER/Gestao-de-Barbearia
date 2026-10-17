@@ -34,7 +34,7 @@ Siga [ATIVACAO.md](../ATIVACAO.md). Em projeto já configurado, aplique `supabas
 
 A migração preserva todas as tabelas antigas do schema `barber`. Elas deixam de ser acessíveis pelas funções antigas do aplicativo. Nenhum dado antigo é apagado ou copiado automaticamente para as novas contas; inclusive contas já existentes começam com um espaço individual vazio. A recuperação de históricos antigos exige atribuição explícita e revisão pelo administrador do banco.
 
-O schema privado `personal` não deve ser exposto pela API. Suas tabelas têm RLS habilitada e sem acesso direto a `anon`/`authenticated`. A função `barber_account_api` verifica identidade, e-mail confirmado e propriedade em cada leitura/gravação. IDs enviados pelo navegador não autorizam acesso a outra conta. Não existe administrador global dentro do aplicativo.
+O schema privado `personal` não deve ser exposto pela API. Suas tabelas têm RLS habilitada e sem acesso direto a `anon`/`authenticated`. A função `barber_account_api` verifica identidade, e-mail confirmado e aprovação antes de cada leitura/gravação. IDs enviados pelo navegador não autorizam acesso a outra conta. O e-mail administrativo pode aprovar novas contas; essa permissão não dá acesso aos dados de outras contas.
 
 ## Arquivos
 

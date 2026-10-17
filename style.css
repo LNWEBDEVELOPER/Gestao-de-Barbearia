@@ -83,6 +83,18 @@ select option { color: var(--texto); background: var(--campo); }
 .login-entrar span { font-size: 20px; line-height: 1; }
 .login-erro { min-height: 24px; margin-top: 10px; color: var(--perigo); font-size: 12px; }
 .login-ajuda { margin: 8px 0 28px; font-size: 11px; }
+.pending-access { margin-top: 10px; padding: 20px; text-align: left; }
+.pending-access h3 { margin: 12px 0 8px; color: var(--texto); font-size: 17px; letter-spacing: 0; text-transform: none; }
+.pending-access .hint { margin-top: 12px; overflow-wrap: anywhere; }
+.pending-access .action-row { align-items: stretch; margin: 16px 0 8px; }
+.pending-access .action-row > a { display: flex; flex: 1 1 150px; align-items: center; justify-content: center; width: auto; margin: 0; text-align: center; text-decoration: none; }
+.pending-access > .link-texto { width: auto; margin-right: 16px; }
+.painel-aprovacoes { margin: 0 0 20px; padding: 22px; border: 1px solid #645238; border-radius: 10px; background: linear-gradient(115deg,#282218,#191b19 72%); }
+.painel-aprovacoes .secao-cabecalho { align-items: center; }
+.painel-aprovacoes .secao-cabecalho h2 { margin-top: 4px; font-size: 23px; }
+.painel-aprovacoes .secao-cabecalho > strong { color: var(--dourado); font-size: 28px; }
+.painel-aprovacoes p { margin-top: 8px; }
+.painel-aprovacoes .botao-principal { display: inline-flex; width: auto; margin-top: 14px; }
 .login-rodape { padding-top: 20px; border-top: 1px solid var(--linha); font-size: 10px; letter-spacing: .14em; }
 .login-rodape span { color: #878a7f; }
 
