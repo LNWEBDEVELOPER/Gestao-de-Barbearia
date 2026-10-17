@@ -4,7 +4,7 @@
 
 Aplicação web para cadastrar clientes, definir preços, registrar serviços e acompanhar metas. Cada conta acessa somente seus próprios dados, inclusive ao entrar em outro aparelho.
 
-[**Abrir aplicação**](https://luannascimentopsp-droid.github.io/AppBarberweb/) · [Guia de ativação](ATIVACAO.md) · [Detalhes de operação](docs/OPERACAO.md)
+[**Abrir Gestão de Barbearia**](https://LNWEBDEVELOPER.github.io/AppBarberweb/) · [Guia de ativação](ATIVACAO.md) · [Detalhes de operação](docs/OPERACAO.md)
 
 > O acesso exige e-mail e senha. Cada conta começa vazia, sem registros fictícios.
 
@@ -17,7 +17,7 @@ Um controle de atendimentos precisa relacionar clientes, serviços, valores e hi
 ## Funcionalidades
 
 - Cadastro e histórico de clientes, com busca e arquivamento.
-- Tabela de serviços e preços; cálculo de valor e comissão no servidor.
+- Tabela de serviços e preços; comissão padrão de 50%, calculada no servidor e configurável no perfil.
 - Relatórios por período, metas e exportação dos registros da conta.
 - Login, confirmação de e-mail e recuperação de senha pelo Supabase Auth.
 - Cancelamento de atendimento com motivo e preservação do histórico.
@@ -43,8 +43,8 @@ O servidor calcula preços e comissões; alterar o preço de um serviço não mo
 Requisito: **Node.js 22.13 ou superior**.
 
 ```sh
-git clone https://github.com/luannascimentopsp-droid/AppBarberweb.git
-cd AppBarberweb
+git clone https://github.com/LNWEBDEVELOPER/AppBarberweb.git gestao-de-barbearia
+cd gestao-de-barbearia
 npm ci
 npm test
 npm run build
@@ -79,4 +79,5 @@ As telas atualizam ao navegar, salvar ou clicar em Atualizar. Não há gravaçã
 
 ---
 
-Projeto do portfólio de [Luan Nascimento](https://github.com/luannascimentopsp-droid).
+Projeto do portfólio de [Luan Nascimento](https://github.com/LNWEBDEVELOPER).
+
