@@ -47,7 +47,7 @@ async function go(page='home',args={}){
     const current=++sequence;route=page;routeArgs=args;app.setAttribute('aria-busy','true');
     try{
         const next=await call('state');if(current!==sequence)return;state=next;applyBrand(state.shop.name);
-        $('telaLogin').style.display='none';$('appPrincipal').style.display='block';$('headerPerfil').textContent=state.me.name;
+        $('siteHome').hidden=true;$('telaLogin').style.display='none';$('appPrincipal').style.display='block';$('headerPerfil').textContent=state.me.name;
         document.querySelectorAll('.menu-inferior button').forEach(b=>{const selected=b.dataset.page===page||(page==='newService'&&b.dataset.page==='services')||(page==='history'&&b.dataset.page==='clients');b.classList.toggle('ativo',selected);if(selected)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
         const views={home,services,clients,history,newService,goals,team,catalog,account,audit};
         if(['team','catalog','audit'].includes(page)&&!owner())throw new Error('Acesso reservado ao dono.');
