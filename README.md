@@ -4,7 +4,7 @@
 
 Aplicação web para cadastrar clientes, definir preços, registrar serviços e acompanhar metas. Cada conta acessa somente seus próprios dados, inclusive ao entrar em outro aparelho.
 
-[**Abrir Gestão de Barbearia**](https://LNWEBDEVELOPER.github.io/AppBarberweb/) · [Guia de ativação](ATIVACAO.md) · [Detalhes de operação](docs/OPERACAO.md)
+[**Abrir Gestão de Barbearia**](https://lnwebdeveloper.github.io/Gestao-de-Barbearia/) · [Guia de ativação](ATIVACAO.md) · [Detalhes de operação](docs/OPERACAO.md)
 
 > O acesso exige e-mail e senha. Cada conta começa vazia, sem registros fictícios.
 
@@ -43,7 +43,7 @@ O servidor calcula preços e comissões; alterar o preço de um serviço não mo
 Requisito: **Node.js 22.13 ou superior**.
 
 ```sh
-git clone https://github.com/LNWEBDEVELOPER/AppBarberweb.git gestao-de-barbearia
+git clone https://github.com/LNWEBDEVELOPER/Gestao-de-Barbearia.git gestao-de-barbearia
 cd gestao-de-barbearia
 npm ci
 npm test
@@ -80,4 +80,3 @@ As telas atualizam ao navegar, salvar ou clicar em Atualizar. Não há gravaçã
 ---
 
 Projeto do portfólio de [Luan Nascimento](https://github.com/LNWEBDEVELOPER).
-
