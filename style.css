@@ -397,3 +397,108 @@ legend { font-size:12px; font-weight:600; margin-bottom:10px; }
     h2 { font-size:28px; }
     .monthly-grid { grid-template-columns:repeat(4,1fr); }
 }
+
+/* Public landing page: cream, ink and warm gold, inspired by the visual reference. */
+.site-home { --site-ink:#171816; --site-muted:#696b65; --site-paper:#f7f5f1; --site-white:#fffefa; --site-gold:#ad8955; color:var(--site-ink); background:var(--site-paper); font-family:"Manrope",Arial,sans-serif; }
+.site-home[hidden] { display:none; }
+.site-home a { color:inherit; text-decoration:none; }
+.site-home button { color:inherit; }
+.site-header { position:relative; z-index:2; display:flex; align-items:center; justify-content:space-between; gap:24px; min-height:82px; max-width:1440px; margin:auto; padding:0 clamp(22px,5vw,76px); background:var(--site-white); }
+.site-brand { display:inline-flex; align-items:center; gap:12px; color:var(--site-ink); font:600 12px/1.2 "Manrope",sans-serif; letter-spacing:.22em; }
+.site-brand-mark { display:grid; width:34px; height:39px; place-items:center; border-bottom:1px solid var(--site-gold); font:500 34px/1 "Cormorant Garamond",Georgia,serif; }
+.site-brand small { display:block; margin-top:5px; color:var(--site-muted); font-size:8px; letter-spacing:.29em; }
+.site-nav { display:flex; align-items:center; gap:clamp(18px,3vw,44px); }
+.site-nav a,.site-footer>div a,.site-footer>div button { font-size:10px; font-weight:600; letter-spacing:.05em; }
+.site-nav a { padding:10px 0; border-bottom:1px solid transparent; }
+.site-nav a:hover { border-color:var(--site-gold); }
+.site-button { display:inline-flex; align-items:center; justify-content:center; gap:22px; min-height:46px; padding:0 20px; border:1px solid transparent; border-radius:0; font-size:10px; font-weight:700; letter-spacing:.035em; transition:background .2s,color .2s,border-color .2s; }
+.site-button span { font-size:16px; line-height:1; }
+.site-button-dark { color:#fff!important; background:#171816; }
+.site-button-dark:hover { background:#363831; }
+.site-button-light { border-color:#b9b5ac; background:transparent; }
+.site-button-light:hover { border-color:var(--site-ink); }
+.site-hero { position:relative; display:grid; grid-template-columns:.92fr 1.08fr; min-height:min(610px,68vw); max-width:1440px; margin:auto; overflow:hidden; background:var(--site-white); }
+.site-hero-copy { position:relative; z-index:1; display:flex; flex-direction:column; justify-content:center; align-items:flex-start; padding:70px clamp(30px,6vw,94px); }
+.site-eyebrow { color:var(--site-gold); font-size:9px; font-weight:700; letter-spacing:.18em; }
+.site-hero h1 { margin-top:18px; color:var(--site-ink); font-size:clamp(47px,6.2vw,82px); line-height:.96; }
+.site-home h1 em,.site-home h2 em { color:var(--site-gold); }
+.site-hero-copy>p { max-width:390px; margin-top:22px; color:var(--site-muted); font-size:12px; line-height:1.85; }
+.site-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:25px; }
+.site-proof { display:flex; align-items:center; gap:12px; margin-top:38px; }
+.proof-mark { display:grid; width:35px; height:35px; place-items:center; border:1px solid #ded9ce; border-radius:50%; color:var(--site-gold); font-size:15px; }
+.site-proof strong,.site-proof small { display:block; }
+.site-proof strong { font-size:9px; }
+.site-proof small { margin-top:3px; color:var(--site-muted); font-size:8px; }
+.site-hero-image { min-height:440px; background:linear-gradient(90deg,var(--site-white) 0%,#fffefa00 25%),url("assets/barbearia-hero.png") 64% center/cover no-repeat; }
+.hero-caption { position:absolute; right:32px; bottom:22px; color:#ffffffc9; font-size:8px; letter-spacing:.2em; text-shadow:0 1px 5px #000; }
+.site-benefits { display:grid; grid-template-columns:repeat(4,1fr); gap:0; max-width:1440px; margin:auto; padding:25px clamp(22px,5vw,76px); background:#fffefa; border-top:1px solid #eeece7; border-bottom:1px solid #eeece7; }
+.site-benefits article { display:flex; align-items:center; gap:12px; min-width:0; padding:6px clamp(8px,2vw,27px); border-right:1px solid #e7e4dc; }
+.site-benefits article:first-child { padding-left:0; }
+.site-benefits article:last-child { border:0; }
+.benefit-icon { flex:0 0 34px; color:var(--site-gold); font:24px/1 "Cormorant Garamond",Georgia,serif; text-align:center; }
+.site-benefits strong,.site-benefits small { display:block; }
+.site-benefits strong { font-size:9px; }
+.site-benefits small { margin-top:5px; color:var(--site-muted); font-size:8px; line-height:1.5; }
+.site-services { max-width:1440px; margin:auto; padding:84px clamp(22px,5vw,76px) 92px; }
+.site-section-heading { display:flex; align-items:end; justify-content:space-between; gap:35px; margin-bottom:29px; }
+.site-section-heading h2,.experience-copy h2,.site-cta h2 { margin-top:9px; color:var(--site-ink); font-size:clamp(37px,4.2vw,54px); }
+.site-section-heading>p { max-width:380px; margin-bottom:6px; color:var(--site-muted); font-size:11px; }
+.feature-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:17px; }
+.feature-card { overflow:hidden; background:#fffefa; }
+.feature-picture { height:210px; background-image:linear-gradient(#1112,#1112),url("assets/barbearia-hero.png"); background-size:cover; }
+.feature-cut { background-position:70% 37%; }
+.feature-tools { background-position:93% 70%; filter:saturate(.76); }
+.feature-shop { background-position:32% 50%; filter:brightness(.72) sepia(.12); }
+.feature-copy { padding:20px 21px 22px; }
+.feature-copy>span { color:var(--site-gold); font-size:8px; font-weight:700; letter-spacing:.14em; }
+.feature-copy h3 { margin:9px 0 6px; color:var(--site-ink); font:500 25px/1.1 "Cormorant Garamond",Georgia,serif; letter-spacing:0; text-transform:none; }
+.feature-copy p { min-height:37px; color:var(--site-muted); font-size:10px; line-height:1.7; }
+.feature-copy button { display:flex; align-items:center; gap:13px; margin-top:13px; padding:0 0 4px; border:0; border-bottom:1px solid #c7bda9; background:none; font-size:9px; font-weight:700; }
+.feature-copy button span { color:var(--site-gold); font-size:15px; }
+.site-experience { display:grid; grid-template-columns:1.25fr 1fr; max-width:1440px; min-height:330px; margin:auto; background:#171b18; }
+.experience-photo { min-height:330px; background:linear-gradient(90deg,#080a0870,#080a0810),url("assets/barbearia-hero.png") 24% 66%/cover no-repeat; }
+.experience-copy { display:flex; flex-direction:column; align-items:flex-start; justify-content:center; padding:42px clamp(28px,5vw,72px); }
+.experience-copy h2 { color:#fffefa; }
+.experience-copy>p { max-width:390px; margin-top:15px; color:#c4c4bd; font-size:11px; }
+.site-button-gold { margin-top:19px; color:#171816!important; background:#c6a36e; }
+.site-button-gold:hover { background:#dfc18d; }
+.site-cta { display:flex; align-items:center; justify-content:space-between; gap:25px; max-width:1440px; margin:auto; padding:52px clamp(22px,5vw,76px); background:#eeeae2; }
+.site-cta h2 { font-size:clamp(34px,4vw,48px); }
+.site-cta .site-button { min-width:205px; }
+.site-footer { display:grid; grid-template-columns:1fr 1fr auto; align-items:center; gap:20px; max-width:1440px; margin:auto; padding:28px clamp(22px,5vw,76px); color:#e9e7e0; background:#171816; }
+.site-footer .site-brand { color:#fffefa; }
+.site-footer>p { color:#bbbcb5; font-size:9px; }
+.site-footer>div { display:flex; flex-wrap:wrap; gap:18px; }
+.site-footer>div button { padding:0; border:0; color:inherit; background:none; }
+.site-copyright { grid-column:1/-1; padding-top:14px; border-top:1px solid #ffffff22; color:#a7a9a1; font-size:8px; }
+.login-voltar { align-self:flex-start; margin:0 0 34px; padding:0 0 5px; border:0; border-bottom:1px solid #716e61; color:#d7c5a2; background:transparent; font-size:10px; }
+.tela-login[hidden] { display:none!important; }
+@media(max-width:760px) {
+    .site-header { min-height:70px; padding:0 19px; }
+    .site-nav { display:none; }
+    .site-header>.site-button { min-height:40px; padding:0 12px; font-size:9px; }
+    .site-hero { grid-template-columns:1fr; }
+    .site-hero-copy { min-height:410px; padding:54px 25px 36px; }
+    .site-hero h1 { font-size:clamp(50px,12vw,72px); }
+    .site-hero-image { min-height:300px; background-image:linear-gradient(180deg,var(--site-white) 0%,#fffefa00 24%),url("assets/barbearia-hero.png"); background-position:68% center; }
+    .hero-caption { bottom:16px; right:18px; }
+    .site-benefits { grid-template-columns:repeat(2,1fr); padding:14px 19px; }
+    .site-benefits article { padding:13px 8px; border-bottom:1px solid #e7e4dc; }
+    .site-benefits article:nth-child(2) { border-right:0; }
+    .site-benefits article:nth-child(3),.site-benefits article:nth-child(4) { border-bottom:0; }
+    .site-services { padding:62px 19px; }
+    .site-section-heading { display:block; }
+    .site-section-heading>p { margin-top:12px; }
+    .feature-grid { grid-template-columns:1fr; gap:12px; }
+    .feature-picture { height:230px; }
+    .feature-copy p { min-height:0; }
+    .site-experience { grid-template-columns:1fr; }
+    .experience-photo { min-height:240px; }
+    .experience-copy { padding:37px 24px 42px; }
+    .site-cta { align-items:flex-start; flex-direction:column; padding:39px 22px; }
+    .site-footer { grid-template-columns:1fr 1fr; padding:26px 21px; }
+    .site-footer>p { grid-column:1/-1; grid-row:2; }
+    .site-footer>div { grid-column:1/-1; grid-row:3; }
+    .site-copyright { grid-row:4; }
+}
+
