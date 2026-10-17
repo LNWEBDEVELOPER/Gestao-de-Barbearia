@@ -6,7 +6,7 @@ revoke all on schema personal from public, anon, authenticated;
 create table personal.accounts (
  id uuid primary key references auth.users(id),
  name text not null default 'Minha conta' check(length(trim(name)) between 2 and 100),
- commission_rate numeric(5,2) not null default 0 check(commission_rate between 0 and 100),
+ commission_rate numeric(5,2) not null default 50 check(commission_rate between 0 and 100),
  shop_name text not null default '' check(length(shop_name)<=100),
  phone text not null default '' check(length(phone)<=20),
  address text not null default '' check(length(address)<=300)
@@ -162,3 +162,4 @@ grant execute on function public.barber_account_api(text,jsonb) to authenticated
 revoke all on function public.barber_api(text,jsonb) from public,anon,authenticated;
 revoke all on function public.barber_import(jsonb) from public,anon,authenticated;
 commit;
+
