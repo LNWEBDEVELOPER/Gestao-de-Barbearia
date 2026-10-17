@@ -42,7 +42,7 @@ function download(name,content,type='application/json'){const a=document.createE
 function serviceRows(rows,canCancel=false){return rows.length?`<div class="records">${rows.map(s=>`<article class="registro ${s.canceled?'canceled':''}"><div class="record-main"><div><strong>${esc(s.client_name||s.barber_name)}</strong><p>${esc(s.service_name)}</p><small>${dateLabel(s.day)} · ${esc(s.barber_name)} · ${esc(s.payment)}</small></div><div class="record-amount"><strong>${money(s.amount)}</strong>${s.commission!==undefined?`<small>Comissão ${money(s.commission)}</small>`:''}</div></div>${s.canceled?`<p class="hint">Cancelado: ${esc(s.cancel_reason)}</p>`:canCancel&&owner()?button('Cancelar registro','cancel',s.id,'botao-excluir'):''}</article>`).join('')}</div>`:empty('Nenhum atendimento encontrado neste período.');}
 function bindForm(id,handler){$(id)?.addEventListener('submit',async event=>{event.preventDefault();const form=event.currentTarget;if(form.dataset.busy)return;form.dataset.busy='true';const btn=form.querySelector('[type=submit]'),previous=btn.textContent;btn.disabled=true;btn.textContent='Salvando…';try{await handler(Object.fromEntries(new FormData(form)),form);}catch(error){notify(errorMessage(error),true);}finally{delete form.dataset.busy;btn.disabled=false;btn.textContent=previous;}});}
 async function save(action,payload,next=route,args=routeArgs){await call(action,payload);if(await go(next,args))notify('Salvo com sucesso.');else notify('O registro foi salvo, mas não foi possível atualizar a tela. Use Atualizar antes de tentar novamente.',true);}
-function showLogin(){sequence++;state=null;route='home';routeArgs={};applyBrand();$('headerPerfil').textContent='Minha conta';$('syncTime').textContent='';app.innerHTML='';$('appPrincipal').style.display='none';$('telaLogin').style.display='flex';$('loginSenha').value='';$('loginEmail').focus();}
+function showLogin(){sequence++;state=null;route='home';routeArgs={};applyBrand();$('headerPerfil').textContent='Minha conta';$('syncTime').textContent='';app.innerHTML='';$('appPrincipal').style.display='none';$('siteHome').hidden=true;$('telaLogin').hidden=false;$('telaLogin').style.display='flex';$('loginSenha').value='';$('loginEmail').focus();}
 async function go(page='home',args={}){
     const current=++sequence;route=page;routeArgs=args;app.setAttribute('aria-busy','true');
     try{
@@ -207,3 +207,4 @@ async function boot(){
     $('bootMessage').hidden=true;$('loginForm').hidden=false;
 }
 boot().catch(error=>{notify(errorMessage(error),true);$('bootMessage').hidden=true;$('loginForm').hidden=false;});
+
