@@ -23,14 +23,14 @@ A prévia fica em http://127.0.0.1:8766. Publique somente `dist/`. O build recri
 
 - Cadastro por e-mail e senha; confirmação de e-mail e recuperação de senha.
 - Clientes, histórico, preços, atendimentos, relatórios, metas e exportação exclusivos de cada conta.
-- Nome e comissão configuráveis em Meu perfil; nome do negócio opcional em Minha conta.
+- Comissão inicial de 50%, configurável em Meu perfil; nome do negócio opcional em Minha conta.
 - Preços e comissão calculados no servidor. Cancelamentos preservam o registro e seu motivo.
 - Trocar de conta ou sair limpa o painel e o nome do negócio. Respostas pendentes de outra sessão são descartadas.
 - Consultas atualizadas ao navegar, salvar ou clicar em Atualizar. Não há gravação offline ou atualização automática em tempo real.
 
 ## Ativação e dados antigos
 
-Siga [ATIVACAO.md](../ATIVACAO.md). Em projeto já configurado, aplique apenas `supabase/migrations/003_contas_individuais.sql` antes de publicar o frontend v3.
+Siga [ATIVACAO.md](../ATIVACAO.md). Em projeto já configurado, aplique `supabase/migrations/004_comissao_padrao_50.sql` se a migração 003 já estiver ativa. O banco salva a comissão de cada atendimento e usa o percentual configurado no perfil no momento do registro.
 
 A migração preserva todas as tabelas antigas do schema `barber`. Elas deixam de ser acessíveis pelas funções antigas do aplicativo. Nenhum dado antigo é apagado ou copiado automaticamente para as novas contas; inclusive contas já existentes começam com um espaço individual vazio. A recuperação de históricos antigos exige atribuição explícita e revisão pelo administrador do banco.
 
@@ -39,7 +39,8 @@ O schema privado `personal` não deve ser exposto pela API. Suas tabelas têm RL
 ## Arquivos
 
 - `ui.js`: telas; `cloud.js`: sessão e API; `domain.js`: cálculos e formatação.
-- `supabase/migrations/003_contas_individuais.sql`: estrutura e acesso individual.
+- `supabase/migrations/003_contas_individuais.sql` e `004_comissao_padrao_50.sql`: estrutura individual e comissão padrão de 50%.
 - `tests/`: isolamento do banco e comportamento das telas.
 - `scripts/`: build e prévia de `dist/`.
 - `demo.js` e `exportar-antigo.*`: arquivos históricos mantidos apenas no código-fonte, fora da publicação.
+
