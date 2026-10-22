@@ -79,7 +79,7 @@ async function home(args={},token){
     const monthTotals=totals(balanceRows.filter(s=>s.day>=monthStart&&s.day<=state.today));
     const weekTotals=totals(balanceRows.filter(s=>s.day>=weekStart&&s.day<=weekEnd));
     const rate=Number(state.me.commission_rate??50),recent=state.services.filter(s=>!s.canceled).slice(0,4);
-    monthTotals.commission=Math.round((monthTotals.amount*rate+Number.EPSILON)*100)/100;
+    monthTotals.commission=Math.round((monthTotals.amount*rate/100+Number.EPSILON)*100)/100;
     const balanceCards=t=>`<div class="resumo-grid" aria-label="Totais do período">${[['money','Total dos serviços',money(t.amount),`${t.count} atendimento${t.count===1?'':'s'} registrado${t.count===1?'':'s'}`],['target',`Saldo de comissão · ${rate}%`,money(t.commission),'Comissões dos serviços cadastrados']].map(([i,label,value,detail])=>`<div class="resumo-item"><span class="resumo-icone">${icon(i)}</span><div><small>${label}</small><strong>${value}</strong><p>${detail}</p></div></div>`).join('')}</div>`;
     const shortcuts=[['services','calendar','Atendimentos','Consulte seus registros'],['clients','people','Clientes','Conheça cada história'],...(owner()?[['team','cut','Meu perfil','Nome e comissão'],['services','money','Financeiro','Acompanhe os resultados']]:[])];
     app.innerHTML=`<div class="dashboard-home"><div class="dashboard-intro"><div><span class="eyebrow">MINHA GESTÃO</span><h1 tabindex="-1">${owner()?'Seu painel':'Olá, '+esc(state.me.name.split(' ')[0])}</h1></div><span class="dashboard-data">${icon('calendar')}${dateLabel(state.today)}</span></div>
