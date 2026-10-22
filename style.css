@@ -129,7 +129,7 @@ select option { color: var(--texto); background: var(--campo); }
 .banner-dashboard .botao-principal svg { width: 18px; height: 18px; }
 .banner-selo { position: absolute; bottom: 24px; right: 26px; display: flex; align-items: center; gap: 9px; color: #d9c6a2; font-size: 9px; letter-spacing: .16em; }
 .banner-selo::before { content: ""; width: 28px; height: 1px; background: var(--dourado); }
-.resumo-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 22px 0 28px; }
+.resumo-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 22px 0 28px; }
 .resumo-item { display: flex; align-items: flex-start; gap: 15px; padding: 22px; border: 1px solid var(--linha); border-radius: 9px; background: var(--card); }
 .resumo-icone { display: grid; place-items: center; flex-shrink: 0; width: 40px; height: 40px; color: var(--dourado); background: var(--dourado-suave); border: 1px solid #403b2e; border-radius: 8px; }
 .resumo-icone svg { width: 20px; height: 20px; }
